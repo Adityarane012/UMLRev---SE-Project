@@ -1,0 +1,48 @@
+@startuml
+title Feature: Tell Story Narrative - Sequence Diagram
+autonumber
+participant Enemy
+participant Hero
+participant Princess
+participant Story
+Story -> Enemy: capture()
+activate Enemy
+Enemy --> Story: return
+deactivate Enemy
+Story -> Hero: fight()
+activate Hero
+Hero --> Story: return
+deactivate Hero
+Story -> Hero: save()
+activate Hero
+Hero --> Story: return
+deactivate Hero
+Story -> Enemy: capture()
+activate Enemy
+Enemy --> Story: return
+deactivate Enemy
+Story -> Hero: fight()
+activate Hero
+Hero --> Story: return
+deactivate Hero
+Story -> Hero: save()
+activate Hero
+Hero --> Story: return
+deactivate Hero
+Enemy -> Princess: setCaptured()
+activate Princess
+Princess --> Enemy: return
+deactivate Princess
+Enemy -> Princess: setCaptured()
+activate Princess
+Princess --> Enemy: return
+deactivate Princess
+Hero -> Princess: release()
+activate Princess
+Princess --> Hero: return
+deactivate Princess
+Hero -> Princess: release()
+activate Princess
+Princess --> Hero: return
+deactivate Princess
+@enduml
