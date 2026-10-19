@@ -1,0 +1,5 @@
+@startuml
+title Feature: Field Symbol Management - Sequence Diagram
+autonumber
+participant FieldSymbol
+@enduml

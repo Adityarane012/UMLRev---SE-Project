@@ -1,0 +1,59 @@
+@startuml
+title Feature: AI-Powered Software Feature Identification - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class Init {
+  - __version__: Any
+}
+class GitService {
+  + is_valid_github_url(url): bool
+  + normalize_github_url(url): str
+  + extract_repo_name(url): str
+  + clone_repository(github_url, destination_dir, depth): Any
+  + get_commit_history(repo_dir, limit): Any
+  + get_diff_summary(repo_dir, commit_hash): Any
+}
+class EvaluationService {
+  + evaluate(ground_truth, predicted_features): Any
+}
+class GroundTruth {
+  - __init__(repo_name, feature_mapping): Any
+  + add_feature(feature_name, classes): Any
+  + classes_for(feature_name): Any
+  + get_features(): Any
+}
+class DiffAnalyzer {
+  - __init__(llm_client): Any
+  + analyze_diff(diff_text, changed_files, commit_message, classes): Any
+}
+class Cluster {
+  - __init__(cluster_id, class_names): Any
+  + add_class(name): Any
+  + size(): int
+  + class_names(): Any
+  - __repr__(): Any
+}
+class TestClusterEngine {
+  + setUp(): Any
+  + test_empty_classes(): Any
+  + test_benchmark_clustering(): Any
+}
+class LLMClient {
+  - __init__(model): Any
+  + ask(prompt): str
+  # _heuristic_fallback(prompt): str
+}
+class TestBackendAPI {
+  + setUp(): Any
+  + tearDown(): Any
+  + test_root_endpoint(): Any
+  + test_tc01_login_and_dashboard_access(): Any
+  + test_tc02_repository_validation_negative_cases(): Any
+  + test_tc03_ai_feature_identification_and_review(): Any
+  + test_tc04_uml_diagram_generation(): Any
+}
+TestBackendAPI ..> LLMClient : setUp
+EvaluationService ..> GroundTruth : uses
+DiffAnalyzer ..> LLMClient : __init__
+@enduml

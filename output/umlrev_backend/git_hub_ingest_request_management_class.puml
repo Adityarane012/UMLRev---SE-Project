@@ -1,0 +1,10 @@
+@startuml
+title Feature: Git Hub Ingest Request Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class GitHubIngestRequest {
+  - github_url: str
+  - name: Any
+}
+@enduml

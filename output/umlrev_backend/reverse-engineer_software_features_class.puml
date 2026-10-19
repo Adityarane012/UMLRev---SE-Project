@@ -1,0 +1,97 @@
+@startuml
+title Feature: Reverse-Engineer Software Features - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class SequenceDiagramStrategy {
+  + generate(feature, project, modified_classes): Diagram
+}
+class SymbolExtractor {
+  - __init__(): Any
+  + scan_directory(folder_path, project_name): Project
+  + extract_from_file(file_path, content, ext, default_pkg): Any
+  # _extract_java(file_path, content, default_pkg): Any
+  # _extract_python(file_path, content, default_pkg): Any
+  # _extract_js_ts(file_path, content, default_pkg): Any
+  # _extract_csharp(file_path, content, default_pkg): Any
+  # _extract_go(file_path, content, default_pkg): Any
+  # _extract_cpp(file_path, content, default_pkg): Any
+  # _extract_php(file_path, content, default_pkg): Any
+  + resolve_relationships(classes): Any
+}
+class UpdateFeatureRequest {
+  - name: str
+  - description: Any
+  - classes: Any
+  - confidence: Any
+}
+class GitHubIngestRequest {
+  - github_url: str
+  - name: Any
+}
+class EvaluateRequest {
+  - ground_truth: Any
+}
+class TestSymbolExtractor {
+  + setUp(): Any
+  + test_extract_tell_story_classes(): Any
+  + test_extract_methods_and_relationships(): Any
+  + test_extract_python_functional_module(): Any
+  + test_extract_react_and_typescript(): Any
+  + test_extract_csharp_and_go(): Any
+}
+class DiagramStrategy {
+  + generate(feature, project, modified_classes): Diagram
+}
+class MethodSymbol {
+  - name: str
+  - return_type: str
+  - parameters: Any
+  - visibility: str
+  - called_methods: Any
+}
+class ClassDiagramStrategy {
+  + generate(feature, project, modified_classes): Diagram
+}
+class ClassSymbol {
+  - name: str
+  - package_name: str
+  - is_interface: bool
+  - super_classes: Any
+  - interfaces: Any
+  - fields: Any
+  - methods: Any
+  - imports: Any
+  - file_path: str
+  - docstring: str
+  + get_imports(): Any
+  + qualified_name(): str
+}
+class FeatureLabeller {
+  - __init__(llm_client): Any
+  + label(cluster, class_map): Feature
+}
+class ClusterEngine {
+  - __init__(min_cluster_size, max_clusters, max_cluster_size): Any
+  + cluster(classes, relationships): Any
+}
+TestSymbolExtractor ..> SymbolExtractor : setUp
+UpdateFeatureRequest ..> SymbolExtractor : uses
+UpdateFeatureRequest ..> ClusterEngine : uses
+UpdateFeatureRequest ..> FeatureLabeller : uses
+EvaluateRequest ..> SymbolExtractor : uses
+EvaluateRequest ..> ClusterEngine : uses
+EvaluateRequest ..> FeatureLabeller : uses
+GitHubIngestRequest ..> SymbolExtractor : uses
+GitHubIngestRequest ..> ClusterEngine : uses
+GitHubIngestRequest ..> FeatureLabeller : uses
+DiagramStrategy ..> ClassSymbol : uses
+DiagramStrategy <|-- ClassDiagramStrategy
+ClassDiagramStrategy ..> ClassSymbol : uses
+DiagramStrategy <|-- SequenceDiagramStrategy
+SequenceDiagramStrategy ..> ClassSymbol : uses
+ClusterEngine ..> ClassSymbol : uses
+SymbolExtractor ..> ClassSymbol : _extract_java
+SymbolExtractor ..> MethodSymbol : _extract_java
+FeatureLabeller ..> ClassSymbol : uses
+@enduml

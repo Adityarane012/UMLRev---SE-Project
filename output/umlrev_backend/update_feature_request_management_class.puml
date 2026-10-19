@@ -1,0 +1,12 @@
+@startuml
+title Feature: Update Feature Request Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class UpdateFeatureRequest {
+  - name: str
+  - description: Any
+  - classes: Any
+  - confidence: Any
+}
+@enduml

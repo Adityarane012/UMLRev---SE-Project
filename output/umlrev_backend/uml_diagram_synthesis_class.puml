@@ -1,0 +1,12 @@
+@startuml
+title Feature: UML Diagram Synthesis - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class DiagramEngine {
+  - __init__(strategies): Any
+  + add_strategy(strategy): Any
+  + generate(feature, project, modified_classes): Any
+  + generate_for_project(project, modified_classes): Any
+}
+@enduml

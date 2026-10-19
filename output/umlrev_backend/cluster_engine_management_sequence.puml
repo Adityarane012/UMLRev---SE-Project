@@ -1,0 +1,5 @@
+@startuml
+title Feature: Cluster Engine Management - Sequence Diagram
+autonumber
+participant ClusterEngine
+@enduml

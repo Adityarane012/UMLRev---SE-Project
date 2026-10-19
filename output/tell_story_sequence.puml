@@ -5,14 +5,6 @@ participant Enemy
 participant Hero
 participant Princess
 participant Story
-Enemy -> Princess: setCaptured()
-activate Princess
-Princess --> Enemy: return
-deactivate Princess
-Enemy -> Princess: setCaptured()
-activate Princess
-Princess --> Enemy: return
-deactivate Princess
 Hero -> Princess: release()
 activate Princess
 Princess --> Hero: return
@@ -45,4 +37,12 @@ Story -> Hero: save()
 activate Hero
 Hero --> Story: return
 deactivate Hero
+Enemy -> Princess: setCaptured()
+activate Princess
+Princess --> Enemy: return
+deactivate Princess
+Enemy -> Princess: setCaptured()
+activate Princess
+Princess --> Enemy: return
+deactivate Princess
 @enduml

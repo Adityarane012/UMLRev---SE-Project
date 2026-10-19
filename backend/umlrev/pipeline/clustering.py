@@ -25,50 +25,48 @@ class ClusterEngine:
     """
     Groups ClassSymbols into functional Clusters using structural dependencies,
     call graph topology, package locality, and lexical similarity.
+    Ensures well-balanced, high-cohesion feature clusters across any repository.
     """
 
-    def __init__(self, min_cluster_size: int = 1, max_clusters: int = 8):
+    def __init__(self, min_cluster_size: int = 1, max_clusters: int = 8, max_cluster_size: int = 12):
         self.min_cluster_size = min_cluster_size
         self.max_clusters = max_clusters
+        self.max_cluster_size = max_cluster_size
 
     def cluster(self, classes: List[ClassSymbol], relationships: List[Relationship] = None) -> List[Cluster]:
         if not classes:
             return []
 
+        # Benchmark / small project heuristic
         if len(classes) <= 4:
-            # For small projects (e.g. Tell Story benchmark), all classes belong to a single primary feature
-            c = Cluster(cluster_id=0, class_names=[cls.name for cls in classes])
-            return [c]
+            return [Cluster(cluster_id=0, class_names=[cls.name for cls in classes])]
 
-        # Build adjacency graph
-        adj: Dict[str, Set[str]] = defaultdict(set)
         class_map = {c.name: c for c in classes}
+        adj: Dict[str, Set[str]] = defaultdict(set)
 
-        # 1. Structural relationships
+        # 1. Structural relationships (inheritance, association, calls, imports)
         if relationships:
             for rel in relationships:
                 if rel.source_class in class_map and rel.target_class in class_map:
                     adj[rel.source_class].add(rel.target_class)
                     adj[rel.target_class].add(rel.source_class)
 
-        # 2. Package affinity
+        # 2. Package affinity (classes in the same directory/package connect)
         pkg_groups: Dict[str, List[str]] = defaultdict(list)
         for c in classes:
-            if c.package_name:
-                pkg_groups[c.package_name].append(c.name)
+            pkg = c.package_name or "root"
+            pkg_groups[pkg].append(c.name)
 
         for pkg, members in pkg_groups.items():
             for i in range(len(members)):
-                for j in range(i + 1, len(members)):
+                for j in range(i + 1, min(len(members), i + 6)):
                     adj[members[i]].add(members[j])
                     adj[members[j]].add(members[i])
 
-        # 3. Find connected components or apply graph community grouping
-        visited = set()
-        clusters: List[Cluster] = []
-        cluster_id = 0
+        # 3. Graph community traversal (Breadth-First Connected Components)
+        visited: Set[str] = set()
+        raw_components: List[List[str]] = []
 
-        # Sort classes by degree of connectivity
         all_names = sorted(class_map.keys(), key=lambda n: len(adj[n]), reverse=True)
 
         for name in all_names:
@@ -86,14 +84,65 @@ class ClusterEngine:
                             queue.append(neighbor)
 
                 if component:
-                    clusters.append(Cluster(cluster_id=cluster_id, class_names=component))
-                    cluster_id += 1
+                    raw_components.append(component)
 
-        # If any isolated classes remain
+        # Add any unvisited classes
         for c in classes:
             if c.name not in visited:
                 visited.add(c.name)
-                clusters.append(Cluster(cluster_id=cluster_id, class_names=[c.name]))
+                raw_components.append([c.name])
+
+        # 4. Partition overly large clusters (> max_cluster_size) and consolidate tiny singletons
+        final_clusters: List[Cluster] = []
+        cluster_id = 0
+        standalone_classes: List[str] = []
+
+        for comp in raw_components:
+            if len(comp) > self.max_cluster_size:
+                # Subdivide by chunks or sub-packages
+                for i in range(0, len(comp), self.max_cluster_size):
+                    chunk = comp[i:i + self.max_cluster_size]
+                    if len(chunk) >= 2 or len(comp) <= self.max_cluster_size:
+                        final_clusters.append(Cluster(cluster_id=cluster_id, class_names=chunk))
+                        cluster_id += 1
+                    else:
+                        standalone_classes.extend(chunk)
+            elif len(comp) == 1 and len(raw_components) > self.max_clusters:
+                # Gather isolated single classes to consolidate
+                standalone_classes.extend(comp)
+            else:
+                final_clusters.append(Cluster(cluster_id=cluster_id, class_names=comp))
                 cluster_id += 1
 
-        return clusters
+        # Consolidate leftover standalones into cohesive batches
+        if standalone_classes:
+            # Group by package first
+            pkg_map = defaultdict(list)
+            for c_name in standalone_classes:
+                p = class_map[c_name].package_name or "Common"
+                pkg_map[p].append(c_name)
+
+            for p_name, members in pkg_map.items():
+                final_clusters.append(Cluster(cluster_id=cluster_id, class_names=members))
+                cluster_id += 1
+
+        # Bound total clusters to self.max_clusters if excessive
+        if len(final_clusters) > self.max_clusters:
+            # Keep top largest clusters and merge the smallest ones into an auxiliary cluster
+            sorted_clusters = sorted(final_clusters, key=lambda cl: cl.size(), reverse=True)
+            kept = sorted_clusters[:self.max_clusters - 1]
+            overflow = sorted_clusters[self.max_clusters - 1:]
+
+            merged_names = []
+            for oc in overflow:
+                merged_names.extend(oc.class_names())
+
+            final_clusters = kept
+            if merged_names:
+                final_clusters.append(Cluster(cluster_id=len(kept), class_names=merged_names))
+
+        # Re-index cluster IDs sequentially
+        for idx, cl in enumerate(final_clusters):
+            cl.cluster_id = idx
+
+        return final_clusters

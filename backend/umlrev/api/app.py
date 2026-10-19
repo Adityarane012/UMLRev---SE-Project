@@ -2,8 +2,9 @@ import os
 import shutil
 import zipfile
 import uuid
+import json
 from typing import Dict, List, Optional, Any, Set
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel
@@ -20,8 +21,8 @@ from ..evaluation.ground_truth import GroundTruth
 from ..evaluation.benchmark import EvaluationService
 
 app = FastAPI(
-    title="AI-Assisted UMLRev API",
-    description="Continuous Reverse Engineering API with AI Feature Identification",
+    title="UMLRev API",
+    description="Continuous Reverse Engineering API with Feature Identification",
     version="1.0.0"
 )
 
@@ -34,11 +35,84 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory session store
+# Session store with disk-backed auto-recovery
 PROJECT_STORE: Dict[str, Project] = {}
 PROJECT_DIFF_REPORTS: Dict[str, Any] = {}
 WORKSPACE_DIR = os.path.abspath("./workspace_uploads")
 os.makedirs(WORKSPACE_DIR, exist_ok=True)
+PROJECT_REGISTRY_FILE = os.path.join(WORKSPACE_DIR, "projects_index.json")
+
+def save_project_metadata(proj_id: str, name: str, folder_path: str, github_url: Optional[str] = None):
+    try:
+        index = {}
+        if os.path.exists(PROJECT_REGISTRY_FILE):
+            with open(PROJECT_REGISTRY_FILE, "r", encoding="utf-8") as f:
+                index = json.load(f)
+        index[proj_id] = {
+            "proj_id": proj_id,
+            "name": name,
+            "folder_path": folder_path,
+            "github_url": github_url
+        }
+        with open(PROJECT_REGISTRY_FILE, "w", encoding="utf-8") as f:
+            json.dump(index, f, indent=2)
+    except Exception as e:
+        print(f"Warning: Failed to save project metadata: {e}")
+
+def get_or_restore_project(proj_id: str) -> Project:
+    if proj_id in PROJECT_STORE:
+        return PROJECT_STORE[proj_id]
+
+    # Search registry or workspace folders
+    folder_path = None
+    project_name = proj_id
+    if os.path.exists(PROJECT_REGISTRY_FILE):
+        try:
+            with open(PROJECT_REGISTRY_FILE, "r", encoding="utf-8") as f:
+                index = json.load(f)
+                if proj_id in index:
+                    folder_path = index[proj_id].get("folder_path")
+                    project_name = index[proj_id].get("name") or proj_id
+        except Exception:
+            pass
+
+    if not folder_path or not os.path.exists(folder_path):
+        gh_candidate = os.path.join(WORKSPACE_DIR, f"gh_{proj_id}")
+        raw_candidate = os.path.join(WORKSPACE_DIR, proj_id)
+        if os.path.exists(gh_candidate):
+            folder_path = gh_candidate
+            project_name = f"Repo-{proj_id}"
+        elif os.path.exists(raw_candidate):
+            folder_path = raw_candidate
+            project_name = f"Project-{proj_id}"
+
+    if not folder_path or not os.path.exists(folder_path):
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    project = Project(name=project_name, folder_path=folder_path)
+    extractor = SymbolExtractor()
+    extracted_proj = extractor.scan_directory(project.folder_path, project_name=project.name)
+    project.source_files = extracted_proj.source_files
+    project.classes = extracted_proj.classes
+    project.relationships = extracted_proj.relationships
+
+    if project.classes:
+        cluster_engine = ClusterEngine()
+        clusters = cluster_engine.cluster(list(project.classes.values()), project.relationships)
+        labeller = FeatureLabeller()
+        project.features = []
+        for c in clusters:
+            feat = labeller.label(c, project.classes)
+            project.features.append(feat)
+
+        diagram_engine = DiagramEngine()
+        diagram_engine.generate_for_project(project)
+
+    PROJECT_STORE[proj_id] = project
+    save_project_metadata(proj_id, project_name, folder_path)
+    return project
+
+from typing import Dict, List, Optional, Any, Set, Union
 
 class LoginRequest(BaseModel):
     username: str
@@ -47,7 +121,7 @@ class LoginRequest(BaseModel):
 class UpdateFeatureRequest(BaseModel):
     name: str
     description: Optional[str] = ""
-    classes: List[str]
+    classes: List[Union[str, Dict[str, Any]]]
     confidence: Optional[float] = 1.0
 
 class EvaluateRequest(BaseModel):
@@ -60,11 +134,12 @@ class GitHubIngestRequest(BaseModel):
 class DiffAnalysisRequest(BaseModel):
     commit_hash: Optional[str] = None
 
-@app.get("/")
+@app.get("/api")
+@app.get("/api/health")
 def read_root():
     return {
         "status": "online",
-        "service": "AI-Assisted UMLRev Backend",
+        "service": "UMLRev Backend",
         "team": ["Jay Gandhi (B124)", "Aditya Rane (B129)"]
     }
 
@@ -78,14 +153,42 @@ def login(req: LoginRequest):
         }
     raise HTTPException(status_code=400, detail="Invalid username")
 
+@app.get("/api/auth/me")
+def get_current_user():
+    return {
+        "username": "aditya",
+        "name": "Aditya Rane (B129)",
+        "role": "Software Developer",
+        "team": ["Jay Gandhi (B124)", "Aditya Rane (B129)"],
+        "authenticated": True
+    }
+
 @app.post("/api/projects/create")
 def create_project(name: str = Form(...), local_path: Optional[str] = Form(None)):
-    proj_id = str(uuid.uuid4())[:8]
-    target_dir = os.path.abspath(local_path) if local_path and os.path.exists(local_path) else os.path.join(WORKSPACE_DIR, proj_id)
-    os.makedirs(target_dir, exist_ok=True)
+    if local_path and local_path.strip():
+        clean_path = local_path.strip().strip("'\"")
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+        candidates = [
+            os.path.abspath(clean_path),
+            os.path.abspath(os.path.join(base_dir, clean_path)),
+            os.path.abspath(os.path.join(WORKSPACE_DIR, clean_path))
+        ]
+        target_dir = None
+        for cand in candidates:
+            if os.path.exists(cand):
+                target_dir = cand
+                break
+        if not target_dir:
+            raise HTTPException(status_code=400, detail=f"Local path does not exist: {local_path}")
+    else:
+        proj_id = str(uuid.uuid4())[:8]
+        target_dir = os.path.join(WORKSPACE_DIR, proj_id)
+        os.makedirs(target_dir, exist_ok=True)
 
+    proj_id = str(uuid.uuid4())[:8]
     project = Project(name=name, folder_path=target_dir)
     PROJECT_STORE[proj_id] = project
+    save_project_metadata(proj_id, name, target_dir)
 
     return {
         "project_id": proj_id,
@@ -100,17 +203,19 @@ def ingest_github_repo(req: GitHubIngestRequest):
     if not GitService.is_valid_github_url(req.github_url):
         raise HTTPException(status_code=400, detail="Invalid GitHub URL. Must be in format https://github.com/owner/repo")
 
-    repo_name = req.name or GitService.extract_repo_name(req.github_url)
+    clean_url = GitService.normalize_github_url(req.github_url)
+    repo_name = req.name or GitService.extract_repo_name(clean_url)
     proj_id = str(uuid.uuid4())[:8]
     target_dir = os.path.join(WORKSPACE_DIR, f"gh_{proj_id}")
 
     # Clone repository
-    clone_res = GitService.clone_repository(req.github_url, target_dir)
+    clone_res = GitService.clone_repository(clean_url, target_dir)
     if not clone_res.get("success"):
         raise HTTPException(status_code=400, detail=clone_res.get("error", "Failed to clone GitHub repository"))
 
     project = Project(name=repo_name, folder_path=target_dir)
     PROJECT_STORE[proj_id] = project
+    save_project_metadata(proj_id, repo_name, target_dir, req.github_url)
 
     # Extract symbols & analyze features
     extractor = SymbolExtractor()
@@ -119,21 +224,18 @@ def ingest_github_repo(req: GitHubIngestRequest):
     project.classes = extracted_proj.classes
     project.relationships = extracted_proj.relationships
 
-    # Semantic Clustering & AI Feature Labeling
+    # Semantic Clustering & AI Feature Labeling (Parallelized)
     cluster_engine = ClusterEngine()
     clusters = cluster_engine.cluster(list(project.classes.values()), project.relationships)
 
     labeller = FeatureLabeller()
-    project.features = []
-    for c in clusters:
-        feat = labeller.label(c, project.classes)
-        project.features.append(feat)
+    project.features = labeller.label_all(clusters, project.classes)
 
     # Generate initial diagrams
     diagram_engine = DiagramEngine()
     diagram_engine.generate_for_project(project)
 
-    commits = GitService.get_commit_history(target_dir, limit=10)
+    commits = GitService.get_commit_history(target_dir, limit=15)
 
     return {
         "project_id": proj_id,
@@ -150,9 +252,7 @@ def ingest_github_repo(req: GitHubIngestRequest):
 
 @app.get("/api/projects/{proj_id}/commits")
 def get_commits(proj_id: str):
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
     commits = GitService.get_commit_history(project.folder_path, limit=15)
     return {
         "project_id": proj_id,
@@ -165,9 +265,7 @@ def analyze_diff(proj_id: str, req: DiffAnalysisRequest):
     Analyzes Git diff between commits to identify which feature was changed
     and regenerates Diagram-as-Code with modified classes highlighted.
     """
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
 
     diff_data = GitService.get_diff_summary(project.folder_path, commit_hash=req.commit_hash)
     if not diff_data.get("changed_files"):
@@ -205,8 +303,11 @@ def analyze_diff(proj_id: str, req: DiffAnalysisRequest):
 
 @app.post("/api/projects/upload-zip")
 async def upload_zip(name: str = Form(...), file: UploadFile = File(...)):
+    if not file.filename or not file.filename.lower().endswith(".zip"):
+        raise HTTPException(status_code=400, detail="Unsupported upload. File must be a valid .zip archive.")
+
     proj_id = str(uuid.uuid4())[:8]
-    target_dir = os.path.join(WORKSPACE_DIR, proj_id)
+    target_dir = os.path.join(WORKSPACE_DIR, f"zip_{proj_id}")
     os.makedirs(target_dir, exist_ok=True)
 
     zip_path = os.path.join(target_dir, file.filename)
@@ -217,24 +318,46 @@ async def upload_zip(name: str = Form(...), file: UploadFile = File(...)):
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(target_dir)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid ZIP file: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid or corrupted ZIP file: {str(e)}")
+
+    # Extract symbols & analyze features immediately
+    extractor = SymbolExtractor()
+    extracted_proj = extractor.scan_directory(target_dir, project_name=name)
+    if not extracted_proj.classes:
+        raise HTTPException(status_code=400, detail="Uploaded ZIP contains no parsable source code files (.py, .java, .js, .ts, etc.).")
 
     project = Project(name=name, folder_path=target_dir)
+    project.source_files = extracted_proj.source_files
+    project.classes = extracted_proj.classes
+    project.relationships = extracted_proj.relationships
+
+    cluster_engine = ClusterEngine()
+    clusters = cluster_engine.cluster(list(project.classes.values()), project.relationships)
+
+    labeller = FeatureLabeller()
+    project.features = labeller.label_all(clusters, project.classes)
+
+    diagram_engine = DiagramEngine()
+    diagram_engine.generate_for_project(project)
+
     PROJECT_STORE[proj_id] = project
+    save_project_metadata(proj_id, name, target_dir)
 
     return {
         "project_id": proj_id,
         "name": name,
         "folder_path": target_dir,
-        "status": "extracted"
+        "files_count": len(project.source_files),
+        "classes_count": len(project.classes),
+        "relationships_count": len(project.relationships),
+        "features": [f.to_dict() for f in project.features],
+        "diagrams": [d.to_dict() for d in project.diagrams],
+        "status": "extracted_and_analyzed"
     }
 
 @app.post("/api/projects/{proj_id}/analyze")
 def analyze_project(proj_id: str):
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
 
     extractor = SymbolExtractor()
     extracted_proj = extractor.scan_directory(project.folder_path, project_name=project.name)
@@ -249,15 +372,12 @@ def analyze_project(proj_id: str):
     clusters = cluster_engine.cluster(list(project.classes.values()), project.relationships)
 
     labeller = FeatureLabeller()
-    project.features = []
-    for c in clusters:
-        feat = labeller.label(c, project.classes)
-        project.features.append(feat)
+    project.features = labeller.label_all(clusters, project.classes)
 
     diagram_engine = DiagramEngine()
     diagram_engine.generate_for_project(project)
 
-    commits = GitService.get_commit_history(project.folder_path, limit=10)
+    commits = GitService.get_commit_history(project.folder_path, limit=15)
 
     return {
         "project_id": proj_id,
@@ -265,15 +385,14 @@ def analyze_project(proj_id: str):
         "classes_count": len(project.classes),
         "relationships_count": len(project.relationships),
         "features": [f.to_dict() for f in project.features],
+        "diagrams": [d.to_dict() for d in project.diagrams],
         "diagrams_count": len(project.diagrams),
         "recent_commits": commits
     }
 
 @app.get("/api/projects/{proj_id}/features")
 def get_features(proj_id: str):
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
     return {
         "project_id": proj_id,
         "features": [f.to_dict() for f in project.features],
@@ -283,9 +402,7 @@ def get_features(proj_id: str):
 
 @app.put("/api/projects/{proj_id}/features")
 def update_features(proj_id: str, updated_features: List[UpdateFeatureRequest]):
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
 
     new_features: List[Feature] = []
     for uf in updated_features:
@@ -295,7 +412,8 @@ def update_features(proj_id: str, updated_features: List[UpdateFeatureRequest]):
             confidence=uf.confidence or 1.0
         )
         for c in uf.classes:
-            feat.add_class(c, score=1.0, primary=True)
+            class_name = c if isinstance(c, str) else (c.get("class_name") or c.get("name") or str(c))
+            feat.add_class(class_name, score=1.0, primary=True)
         new_features.append(feat)
 
     project.features = new_features
@@ -305,15 +423,15 @@ def update_features(proj_id: str, updated_features: List[UpdateFeatureRequest]):
 
     return {
         "status": "updated",
+        "approved": True,
         "features": [f.to_dict() for f in project.features],
+        "diagrams": [d.to_dict() for d in project.diagrams],
         "diagrams_count": len(project.diagrams)
     }
 
 @app.get("/api/projects/{proj_id}/diagrams")
 def get_diagrams(proj_id: str):
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
     return {
         "project_id": proj_id,
         "diagrams": [d.to_dict() for d in project.diagrams],
@@ -322,17 +440,43 @@ def get_diagrams(proj_id: str):
 
 @app.post("/api/projects/{proj_id}/evaluate")
 def evaluate_project(proj_id: str, req: EvaluateRequest):
-    if proj_id not in PROJECT_STORE:
-        raise HTTPException(status_code=404, detail="Project not found")
-    project = PROJECT_STORE[proj_id]
+    project = get_or_restore_project(proj_id)
 
     gt = GroundTruth(repo_name=project.name, feature_mapping=req.ground_truth)
     eval_service = EvaluationService()
     results = eval_service.evaluate(gt, project.features)
     return results
 
-# Mount compiled frontend if available
+# Mount and serve compiled frontend SPA
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist"))
-if os.path.exists(frontend_dist):
-    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+assets_dir = os.path.join(frontend_dist, "assets")
+
+if os.path.exists(assets_dir):
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="frontend-assets")
+
+@app.get("/")
+def serve_index(request: Request):
+    accept = request.headers.get("accept", "")
+    index_file = os.path.join(frontend_dist, "index.html")
+    # If request is from a web browser, serve the compiled SPA
+    if "text/html" in accept and os.path.exists(index_file):
+        return FileResponse(index_file)
+    # If programmatic client without text/html accept, serve API info JSON
+    if not os.path.exists(index_file) or "text/html" not in accept:
+        return read_root()
+    return FileResponse(index_file)
+
+@app.get("/{full_path:path}")
+def catch_all_spa(full_path: str):
+    if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("openapi.json"):
+        raise HTTPException(status_code=404, detail="Not Found")
+    file_path = os.path.join(frontend_dist, full_path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    index_file = os.path.join(frontend_dist, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return read_root()

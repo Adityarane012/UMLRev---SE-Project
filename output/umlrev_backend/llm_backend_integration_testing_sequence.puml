@@ -1,0 +1,10 @@
+@startuml
+title Feature: LLM Backend Integration Testing - Sequence Diagram
+autonumber
+participant TestBackendAPI
+participant LLMClient
+TestBackendAPI -> LLMClient: _heuristic_fallback()
+activate LLMClient
+LLMClient --> TestBackendAPI: return
+deactivate LLMClient
+@enduml

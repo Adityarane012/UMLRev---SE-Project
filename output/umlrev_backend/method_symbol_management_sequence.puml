@@ -1,0 +1,5 @@
+@startuml
+title Feature: Method Symbol Management - Sequence Diagram
+autonumber
+participant MethodSymbol
+@enduml

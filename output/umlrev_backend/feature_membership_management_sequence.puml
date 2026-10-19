@@ -1,0 +1,5 @@
+@startuml
+title Feature: Feature Membership Management - Sequence Diagram
+autonumber
+participant FeatureMembership
+@enduml

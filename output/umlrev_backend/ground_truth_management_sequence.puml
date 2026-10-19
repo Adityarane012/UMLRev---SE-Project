@@ -1,0 +1,5 @@
+@startuml
+title Feature: Ground Truth Management - Sequence Diagram
+autonumber
+participant GroundTruth
+@enduml

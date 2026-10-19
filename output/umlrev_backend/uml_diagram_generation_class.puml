@@ -1,0 +1,17 @@
+@startuml
+title Feature: UML Diagram Generation - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class SequenceDiagramStrategy {
+  + generate(feature, project, modified_classes): Diagram
+}
+class ClassDiagramStrategy {
+  + generate(feature, project, modified_classes): Diagram
+}
+class DiagramStrategy {
+  + generate(feature, project, modified_classes): Diagram
+}
+DiagramStrategy <|-- ClassDiagramStrategy
+DiagramStrategy <|-- SequenceDiagramStrategy
+@enduml

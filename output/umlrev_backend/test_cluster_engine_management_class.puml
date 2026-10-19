@@ -1,0 +1,11 @@
+@startuml
+title Feature: Test Cluster Engine Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class TestClusterEngine {
+  + setUp(): Any
+  + test_empty_classes(): Any
+  + test_benchmark_clustering(): Any
+}
+@enduml

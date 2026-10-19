@@ -14,6 +14,12 @@ export async function login(username, password) {
   return res.json();
 }
 
+export async function getAuthMe() {
+  const res = await fetch(`${API_BASE}/api/auth/me`);
+  if (!res.ok) throw new Error('Failed to retrieve user profile');
+  return res.json();
+}
+
 export async function ingestGitHub(githubUrl) {
   const res = await fetch(`${API_BASE}/api/projects/github`, {
     method: 'POST',
@@ -39,12 +45,44 @@ export async function createProject(name, localPath) {
   return data;
 }
 
+export async function uploadZip(file, name = 'Uploaded Project') {
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('file', file);
+
+  const res = await fetch(`${API_BASE}/api/projects/upload-zip`, {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'ZIP upload failed');
+  return data;
+}
+
 export async function analyzeProject(projectId) {
   const res = await fetch(`${API_BASE}/api/projects/${projectId}/analyze`, {
     method: 'POST'
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.detail || 'Analysis failed');
+  return data;
+}
+
+export async function getFeatures(projectId) {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/features`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Failed to fetch features');
+  return data;
+}
+
+export async function updateFeatures(projectId, updatedFeatures) {
+  const res = await fetch(`${API_BASE}/api/projects/${projectId}/features`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedFeatures)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Failed to update features');
   return data;
 }
 

@@ -1,0 +1,19 @@
+@startuml
+title Feature: Codebase Structural Analysis - Sequence Diagram
+autonumber
+participant Project
+participant TestSymbolExtractor
+participant SymbolExtractor
+TestSymbolExtractor -> Project: get_class()
+activate Project
+Project --> TestSymbolExtractor: return
+deactivate Project
+SymbolExtractor -> Project: add_source_file()
+activate Project
+Project --> SymbolExtractor: return
+deactivate Project
+SymbolExtractor -> Project: add_class()
+activate Project
+Project --> SymbolExtractor: return
+deactivate Project
+@enduml

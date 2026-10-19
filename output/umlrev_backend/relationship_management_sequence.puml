@@ -1,0 +1,5 @@
+@startuml
+title Feature: Relationship Management - Sequence Diagram
+autonumber
+participant Relationship
+@enduml

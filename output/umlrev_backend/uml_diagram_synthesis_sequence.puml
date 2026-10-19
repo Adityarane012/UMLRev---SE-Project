@@ -1,0 +1,5 @@
+@startuml
+title Feature: UML Diagram Synthesis - Sequence Diagram
+autonumber
+participant DiagramEngine
+@enduml

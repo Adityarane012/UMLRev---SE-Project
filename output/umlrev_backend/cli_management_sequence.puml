@@ -1,0 +1,5 @@
+@startuml
+title Feature: Cli Management - Sequence Diagram
+autonumber
+participant cli
+@enduml

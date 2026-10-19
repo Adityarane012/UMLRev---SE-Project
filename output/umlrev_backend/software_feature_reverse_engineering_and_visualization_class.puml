@@ -1,0 +1,99 @@
+@startuml
+title Feature: Software Feature Reverse Engineering and Visualization - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class Project {
+  - name: str
+  - folder_path: str
+  - source_files: Any
+  - classes: Any
+  - relationships: Any
+  - features: Any
+  - diagrams: Any
+  + add_source_file(file_path, content): SourceFile
+  + add_class(symbol): Any
+  + get_class(name): Any
+  + to_summary_dict(): Any
+}
+class FieldSymbol {
+  - name: str
+  - type_name: str
+  - visibility: str
+}
+class DiagramEngine {
+  - __init__(strategies): Any
+  + add_strategy(strategy): Any
+  + generate(feature, project, modified_classes): Any
+  + generate_for_project(project, modified_classes): Any
+}
+class DiagramKind {
+  - CLASS: Any
+  - SEQUENCE: Any
+}
+class Cli {
+  + main(): Any
+}
+class LoginRequest {
+  - username: str
+  - password: str
+}
+class Feature {
+  - name: str
+  - description: str
+  - confidence: float
+  - memberships: Any
+  + member_count(): int
+  + class_names(): Any
+  + add_class(class_name, score, primary): Any
+  + to_dict(): Any
+}
+class FeatureMembership {
+  - class_name: str
+  - score: float
+  - primary: bool
+  + is_primary(): bool
+}
+class SourceFile {
+  - path: str
+  - content: str
+  + read_content(): str
+}
+class Relationship {
+  - source_class: str
+  - target_class: str
+  - rel_type: str
+  - label: str
+}
+class Diagram {
+  - kind: DiagramKind
+  - feature_name: str
+  - uml_text: str
+  - svg_content: str
+  + export(): str
+  + to_dict(): Any
+}
+class DiffAnalysisRequest {
+  - commit_hash: Any
+}
+Cli ..> DiagramEngine : main
+Cli ..> Project : main
+LoginRequest ..> Project : uses
+LoginRequest ..> Feature : uses
+LoginRequest ..> DiagramEngine : uses
+DiffAnalysisRequest ..> Project : uses
+DiffAnalysisRequest ..> Feature : uses
+DiffAnalysisRequest ..> DiagramEngine : uses
+DiagramEngine ..> Feature : uses
+DiagramEngine ..> Project : uses
+DiagramEngine ..> Diagram : uses
+Diagram --> DiagramKind : kind
+Feature ..> FeatureMembership : add_class
+SourceFile ..> Relationship : uses
+SourceFile ..> Feature : uses
+SourceFile ..> Diagram : uses
+Project ..> SourceFile : add_source_file
+Project ..> Relationship : uses
+Project ..> Feature : uses
+Project ..> Diagram : uses
+@enduml

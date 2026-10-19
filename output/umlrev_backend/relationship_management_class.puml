@@ -1,0 +1,12 @@
+@startuml
+title Feature: Relationship Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class Relationship {
+  - source_class: str
+  - target_class: str
+  - rel_type: str
+  - label: str
+}
+@enduml

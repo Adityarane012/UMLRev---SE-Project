@@ -1,6 +1,13 @@
 import React from 'react';
 
-export default function Header({ activeTab, setActiveTab, hasProjectData, onOpenEval }) {
+export default function Header({
+  activeTab,
+  setActiveTab,
+  hasProjectData,
+  onOpenEval,
+  currentUser,
+  onOpenLoginModal
+}) {
   return (
     <header className="app-header">
       <div className="brand-section">
@@ -59,6 +66,42 @@ export default function Header({ activeTab, setActiveTab, hasProjectData, onOpen
           <span>5. Metrics & Eval</span>
         </button>
       </nav>
+
+      {/* User Auth Profile (TC-01) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: 'auto' }}>
+        <div
+          onClick={onOpenLoginModal}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: '20px',
+            padding: '0.35rem 0.85rem',
+            cursor: 'pointer',
+            transition: 'border-color 0.2s ease'
+          }}
+          title="Click to view authentication status or login"
+        >
+          <div
+            style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: currentUser?.token ? '#10b981' : '#f59e0b'
+            }}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: '1.2' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#f1f5f9' }}>
+              {currentUser?.name || 'Aditya Rane (B129)'}
+            </span>
+            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+              {currentUser?.role || 'Software Developer'}
+            </span>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

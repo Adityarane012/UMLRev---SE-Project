@@ -25,22 +25,45 @@ class DiffAnalyzer:
     ) -> Dict[str, Any]:
         # Map changed files to ClassSymbol names
         impacted_classes = []
+        code_file_changed = False
+        code_extensions = ('.java', '.py', '.ts', '.js', '.cpp', '.cs', '.go', '.rb', '.kt', '.scala', '.c', '.h')
+
         for file_path in changed_files:
-            file_base = file_path.replace("\\", "/").split("/")[-1].split(".")[0]
-            for c_name in classes.keys():
-                if c_name.lower() == file_base.lower() or file_path.endswith(f"{c_name}.java") or file_path.endswith(f"{c_name}.py"):
+            norm_file = file_path.replace("\\", "/")
+            if any(norm_file.endswith(ext) for ext in code_extensions):
+                code_file_changed = True
+
+            file_base = norm_file.split("/")[-1].split(".")[0]
+            for c_name, sym in classes.items():
+                sym_path = (sym.file_path or "").replace("\\", "/")
+                if (sym_path and (sym_path.endswith(norm_file) or norm_file.endswith(sym_path))) or \
+                   (c_name.lower() == file_base.lower()) or \
+                   norm_file.endswith(f"/{c_name}.java") or \
+                   norm_file.endswith(f"/{c_name}.py"):
                     impacted_classes.append(c_name)
 
         impacted_classes = list(set(impacted_classes))
 
-        # If no specific classes matched from filenames, fall back to symbols found in diff text
-        if not impacted_classes:
+        # If no specific classes matched from filenames, search diff text for class names
+        if not impacted_classes and diff_text:
             for c_name in classes.keys():
-                if re.search(rf"\b{c_name}\b", diff_text):
+                if re.search(rf"\b{re.escape(c_name)}\b", diff_text):
                     impacted_classes.append(c_name)
             impacted_classes = list(set(impacted_classes))
 
-        # If still none, default to all classes in project (e.g. initial commit)
+        # If the commit touched only non-code files (e.g. docs, readme, media, config)
+        if not impacted_classes and changed_files and not code_file_changed:
+            return {
+                "feature_name": "Documentation & Asset Updates",
+                "change_type": "NON_CODE_UPDATE",
+                "description": f"Commit '{commit_message}' modified non-source assets ({', '.join(changed_files[:3])}). No UML class symbols were directly impacted.",
+                "confidence": 1.0,
+                "impacted_classes": [],
+                "changed_files": changed_files,
+                "commit_message": commit_message
+            }
+
+        # If still none and no specific classes isolated (e.g. initial repository state)
         if not impacted_classes:
             impacted_classes = list(classes.keys())
 

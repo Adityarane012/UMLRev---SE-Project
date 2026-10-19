@@ -1,0 +1,12 @@
+@startuml
+title Feature: Ground Truth Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class GroundTruth {
+  - __init__(repo_name, feature_mapping): Any
+  + add_feature(feature_name, classes): Any
+  + classes_for(feature_name): Any
+  + get_features(): Any
+}
+@enduml

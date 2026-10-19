@@ -1,0 +1,236 @@
+{
+  "name": "UMLRevProject",
+  "folder_path": "C:\\Users\\Aditya Rane\\OneDrive\\Desktop\\aditya\\College MPSTME\\sem5\\SE\\Project\\UMLRev\\backend",
+  "file_count": 21,
+  "class_count": 33,
+  "feature_count": 3,
+  "features": [
+    {
+      "name": "Software Feature Reverse Engineering and Visualization",
+      "description": "This feature analyzes a software project's source code to automatically identify and model its high-level business features, subsequently generating feature-level UML diagrams for visualization and architectural understanding across different project versions.",
+      "confidence": 0.98,
+      "member_count": 12,
+      "classes": [
+        {
+          "class_name": "Project",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "FieldSymbol",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "DiagramEngine",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "DiagramKind",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "Cli",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "LoginRequest",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "Feature",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "FeatureMembership",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "SourceFile",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "Relationship",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "Diagram",
+          "score": 0.98,
+          "is_primary": true
+        },
+        {
+          "class_name": "DiffAnalysisRequest",
+          "score": 0.98,
+          "is_primary": true
+        }
+      ]
+    },
+    {
+      "name": "Reverse-Engineer Software Features",
+      "description": "This feature analyzes source code from various languages, extracts symbols and relationships, then uses clustering to identify and label cohesive software features, generating diagrams (class and sequence) to visualize them.",
+      "confidence": 0.95,
+      "member_count": 12,
+      "classes": [
+        {
+          "class_name": "SequenceDiagramStrategy",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "SymbolExtractor",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "UpdateFeatureRequest",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "GitHubIngestRequest",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "EvaluateRequest",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "TestSymbolExtractor",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "DiagramStrategy",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "MethodSymbol",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "ClassDiagramStrategy",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "ClassSymbol",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "FeatureLabeller",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "ClusterEngine",
+          "score": 0.95,
+          "is_primary": true
+        }
+      ]
+    },
+    {
+      "name": "AI-Powered Software Feature Identification",
+      "description": "This feature analyzes a Git repository's codebase and commit history to automatically identify and cluster classes belonging to specific software features, leveraging a Large Language Model (LLM) for enhanced understanding and evaluation against ground truth data.",
+      "confidence": 0.95,
+      "member_count": 9,
+      "classes": [
+        {
+          "class_name": "Init",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "GitService",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "EvaluationService",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "GroundTruth",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "DiffAnalyzer",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "Cluster",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "TestClusterEngine",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "LLMClient",
+          "score": 0.95,
+          "is_primary": true
+        },
+        {
+          "class_name": "TestBackendAPI",
+          "score": 0.95,
+          "is_primary": true
+        }
+      ]
+    }
+  ],
+  "diagrams": [
+    {
+      "kind": "CLASS",
+      "feature_name": "Software Feature Reverse Engineering and Visualization",
+      "uml_text": "@startuml\ntitle Feature: Software Feature Reverse Engineering and Visualization - Class Diagram\nskinparam classAttributeIconSize 0\nskinparam roundcorner 5\nskinparam packageStyle rectangle\nclass Project {\n  - name: str\n  - folder_path: str\n  - source_files: Any\n  - classes: Any\n  - relationships: Any\n  - features: Any\n  - diagrams: Any\n  + add_source_file(file_path, content): SourceFile\n  + add_class(symbol): Any\n  + get_class(name): Any\n  + to_summary_dict(): Any\n}\nclass FieldSymbol {\n  - name: str\n  - type_name: str\n  - visibility: str\n}\nclass DiagramEngine {\n  - __init__(strategies): Any\n  + add_strategy(strategy): Any\n  + generate(feature, project, modified_classes): Any\n  + generate_for_project(project, modified_classes): Any\n}\nclass DiagramKind {\n  - CLASS: Any\n  - SEQUENCE: Any\n}\nclass Cli {\n  + main(): Any\n}\nclass LoginRequest {\n  - username: str\n  - password: str\n}\nclass Feature {\n  - name: str\n  - description: str\n  - confidence: float\n  - memberships: Any\n  + member_count(): int\n  + class_names(): Any\n  + add_class(class_name, score, primary): Any\n  + to_dict(): Any\n}\nclass FeatureMembership {\n  - class_name: str\n  - score: float\n  - primary: bool\n  + is_primary(): bool\n}\nclass SourceFile {\n  - path: str\n  - content: str\n  + read_content(): str\n}\nclass Relationship {\n  - source_class: str\n  - target_class: str\n  - rel_type: str\n  - label: str\n}\nclass Diagram {\n  - kind: DiagramKind\n  - feature_name: str\n  - uml_text: str\n  - svg_content: str\n  + export(): str\n  + to_dict(): Any\n}\nclass DiffAnalysisRequest {\n  - commit_hash: Any\n}\nCli ..> DiagramEngine : main\nCli ..> Project : main\nLoginRequest ..> Project : uses\nLoginRequest ..> Feature : uses\nLoginRequest ..> DiagramEngine : uses\nDiffAnalysisRequest ..> Project : uses\nDiffAnalysisRequest ..> Feature : uses\nDiffAnalysisRequest ..> DiagramEngine : uses\nDiagramEngine ..> Feature : uses\nDiagramEngine ..> Project : uses\nDiagramEngine ..> Diagram : uses\nDiagram --> DiagramKind : kind\nFeature ..> FeatureMembership : add_class\nSourceFile ..> Relationship : uses\nSourceFile ..> Feature : uses\nSourceFile ..> Diagram : uses\nProject ..> SourceFile : add_source_file\nProject ..> Relationship : uses\nProject ..> Feature : uses\nProject ..> Diagram : uses\n@enduml",
+      "svg_content": "classDiagram\n    %% Feature: Software Feature Reverse Engineering and Visualization\n    class Project {\n        +str name\n        +str folder_path\n        +Any source_files\n        +Any classes\n        +Any relationships\n        +Any features\n        +Any diagrams\n        +add_source_file() SourceFile\n        +add_class() Any\n        +get_class() Any\n        +to_summary_dict() Any\n    }\n    class FieldSymbol {\n        +str name\n        +str type_name\n        +str visibility\n    }\n    class DiagramEngine {\n        +__init__() Any\n        +add_strategy() Any\n        +generate() Any\n        +generate_for_project() Any\n    }\n    class DiagramKind {\n        +Any CLASS\n        +Any SEQUENCE\n    }\n    class Cli {\n        +main() Any\n    }\n    class LoginRequest {\n        +str username\n        +str password\n    }\n    class Feature {\n        +str name\n        +str description\n        +float confidence\n        +Any memberships\n        +member_count() int\n        +class_names() Any\n        +add_class() Any\n        +to_dict() Any\n    }\n    class FeatureMembership {\n        +str class_name\n        +float score\n        +bool primary\n        +is_primary() bool\n    }\n    class SourceFile {\n        +str path\n        +str content\n        +read_content() str\n    }\n    class Relationship {\n        +str source_class\n        +str target_class\n        +str rel_type\n        +str label\n    }\n    class Diagram {\n        +DiagramKind kind\n        +str feature_name\n        +str uml_text\n        +str svg_content\n        +export() str\n        +to_dict() Any\n    }\n    class DiffAnalysisRequest {\n        +Any commit_hash\n    }\n    Cli --> DiagramEngine\n    Cli --> Project\n    LoginRequest --> Project\n    LoginRequest --> Feature\n    LoginRequest --> DiagramEngine\n    DiffAnalysisRequest --> Project\n    DiffAnalysisRequest --> Feature\n    DiffAnalysisRequest --> DiagramEngine\n    DiagramEngine --> Feature\n    DiagramEngine --> Project\n    DiagramEngine --> Diagram\n    Diagram --> DiagramKind\n    Feature --> FeatureMembership\n    SourceFile --> Relationship\n    SourceFile --> Feature\n    SourceFile --> Diagram\n    Project --> SourceFile\n    Project --> Relationship\n    Project --> Feature\n    Project --> Diagram"
+    },
+    {
+      "kind": "SEQUENCE",
+      "feature_name": "Software Feature Reverse Engineering and Visualization",
+      "uml_text": "@startuml\ntitle Feature: Software Feature Reverse Engineering and Visualization - Sequence Diagram\nautonumber\nparticipant Project\nparticipant FieldSymbol\nparticipant DiagramEngine\nparticipant DiagramKind\nparticipant Cli\nparticipant LoginRequest\nparticipant Feature\nparticipant FeatureMembership\nparticipant SourceFile\nparticipant Relationship\nparticipant Diagram\nparticipant DiffAnalysisRequest\nCli -> Project: to_summary_dict()\nactivate Project\nProject --> Cli: return\ndeactivate Project\n@enduml",
+      "svg_content": "sequenceDiagram\n    %% Feature: Software Feature Reverse Engineering and Visualization\n    participant Project as \"Project\"\n    participant FieldSymbol as \"FieldSymbol\"\n    participant DiagramEngine as \"DiagramEngine\"\n    participant DiagramKind as \"DiagramKind\"\n    participant Cli as \"Cli\"\n    participant LoginRequest as \"LoginRequest\"\n    participant Feature as \"Feature\"\n    participant FeatureMembership as \"FeatureMembership\"\n    participant SourceFile as \"SourceFile\"\n    participant Relationship as \"Relationship\"\n    participant Diagram as \"Diagram\"\n    participant DiffAnalysisRequest as \"DiffAnalysisRequest\"\n    Cli->>+Project: to_summary_dict()\n    Project-->>-Cli: result"
+    },
+    {
+      "kind": "CLASS",
+      "feature_name": "Reverse-Engineer Software Features",
+      "uml_text": "@startuml\ntitle Feature: Reverse-Engineer Software Features - Class Diagram\nskinparam classAttributeIconSize 0\nskinparam roundcorner 5\nskinparam packageStyle rectangle\nclass SequenceDiagramStrategy {\n  + generate(feature, project, modified_classes): Diagram\n}\nclass SymbolExtractor {\n  - __init__(): Any\n  + scan_directory(folder_path, project_name): Project\n  + extract_from_file(file_path, content, ext, default_pkg): Any\n  # _extract_java(file_path, content, default_pkg): Any\n  # _extract_python(file_path, content, default_pkg): Any\n  # _extract_js_ts(file_path, content, default_pkg): Any\n  # _extract_csharp(file_path, content, default_pkg): Any\n  # _extract_go(file_path, content, default_pkg): Any\n  # _extract_cpp(file_path, content, default_pkg): Any\n  # _extract_php(file_path, content, default_pkg): Any\n  + resolve_relationships(classes): Any\n}\nclass UpdateFeatureRequest {\n  - name: str\n  - description: Any\n  - classes: Any\n  - confidence: Any\n}\nclass GitHubIngestRequest {\n  - github_url: str\n  - name: Any\n}\nclass EvaluateRequest {\n  - ground_truth: Any\n}\nclass TestSymbolExtractor {\n  + setUp(): Any\n  + test_extract_tell_story_classes(): Any\n  + test_extract_methods_and_relationships(): Any\n  + test_extract_python_functional_module(): Any\n  + test_extract_react_and_typescript(): Any\n  + test_extract_csharp_and_go(): Any\n}\nclass DiagramStrategy {\n  + generate(feature, project, modified_classes): Diagram\n}\nclass MethodSymbol {\n  - name: str\n  - return_type: str\n  - parameters: Any\n  - visibility: str\n  - called_methods: Any\n}\nclass ClassDiagramStrategy {\n  + generate(feature, project, modified_classes): Diagram\n}\nclass ClassSymbol {\n  - name: str\n  - package_name: str\n  - is_interface: bool\n  - super_classes: Any\n  - interfaces: Any\n  - fields: Any\n  - methods: Any\n  - imports: Any\n  - file_path: str\n  - docstring: str\n  + get_imports(): Any\n  + qualified_name(): str\n}\nclass FeatureLabeller {\n  - __init__(llm_client): Any\n  + label(cluster, class_map): Feature\n}\nclass ClusterEngine {\n  - __init__(min_cluster_size, max_clusters, max_cluster_size): Any\n  + cluster(classes, relationships): Any\n}\nTestSymbolExtractor ..> SymbolExtractor : setUp\nUpdateFeatureRequest ..> SymbolExtractor : uses\nUpdateFeatureRequest ..> ClusterEngine : uses\nUpdateFeatureRequest ..> FeatureLabeller : uses\nEvaluateRequest ..> SymbolExtractor : uses\nEvaluateRequest ..> ClusterEngine : uses\nEvaluateRequest ..> FeatureLabeller : uses\nGitHubIngestRequest ..> SymbolExtractor : uses\nGitHubIngestRequest ..> ClusterEngine : uses\nGitHubIngestRequest ..> FeatureLabeller : uses\nDiagramStrategy ..> ClassSymbol : uses\nDiagramStrategy <|-- ClassDiagramStrategy\nClassDiagramStrategy ..> ClassSymbol : uses\nDiagramStrategy <|-- SequenceDiagramStrategy\nSequenceDiagramStrategy ..> ClassSymbol : uses\nClusterEngine ..> ClassSymbol : uses\nSymbolExtractor ..> ClassSymbol : _extract_java\nSymbolExtractor ..> MethodSymbol : _extract_java\nFeatureLabeller ..> ClassSymbol : uses\n@enduml",
+      "svg_content": "classDiagram\n    %% Feature: Reverse-Engineer Software Features\n    class SequenceDiagramStrategy {\n        +generate() Diagram\n    }\n    class SymbolExtractor {\n        +__init__() Any\n        +scan_directory() Project\n        +extract_from_file() Any\n        +_extract_java() Any\n        +_extract_python() Any\n        +_extract_js_ts() Any\n        +_extract_csharp() Any\n        +_extract_go() Any\n    }\n    class UpdateFeatureRequest {\n        +str name\n        +Any description\n        +Any classes\n        +Any confidence\n    }\n    class GitHubIngestRequest {\n        +str github_url\n        +Any name\n    }\n    class EvaluateRequest {\n        +Any ground_truth\n    }\n    class TestSymbolExtractor {\n        +setUp() Any\n        +test_extract_tell_story_classes() Any\n        +test_extract_methods_and_relationships() Any\n        +test_extract_python_functional_module() Any\n        +test_extract_react_and_typescript() Any\n        +test_extract_csharp_and_go() Any\n    }\n    class DiagramStrategy {\n        +generate() Diagram\n    }\n    class MethodSymbol {\n        +str name\n        +str return_type\n        +Any parameters\n        +str visibility\n        +Any called_methods\n    }\n    class ClassDiagramStrategy {\n        +generate() Diagram\n    }\n    class ClassSymbol {\n        +str name\n        +str package_name\n        +bool is_interface\n        +Any super_classes\n        +Any interfaces\n        +Any fields\n        +Any methods\n        +Any imports\n        +get_imports() Any\n        +qualified_name() str\n    }\n    class FeatureLabeller {\n        +__init__() Any\n        +label() Feature\n    }\n    class ClusterEngine {\n        +__init__() Any\n        +cluster() Any\n    }\n    TestSymbolExtractor --> SymbolExtractor\n    UpdateFeatureRequest --> SymbolExtractor\n    UpdateFeatureRequest --> ClusterEngine\n    UpdateFeatureRequest --> FeatureLabeller\n    EvaluateRequest --> SymbolExtractor\n    EvaluateRequest --> ClusterEngine\n    EvaluateRequest --> FeatureLabeller\n    GitHubIngestRequest --> SymbolExtractor\n    GitHubIngestRequest --> ClusterEngine\n    GitHubIngestRequest --> FeatureLabeller\n    DiagramStrategy --> ClassSymbol\n    DiagramStrategy <|-- ClassDiagramStrategy\n    ClassDiagramStrategy --> ClassSymbol\n    DiagramStrategy <|-- SequenceDiagramStrategy\n    SequenceDiagramStrategy --> ClassSymbol\n    ClusterEngine --> ClassSymbol\n    SymbolExtractor --> ClassSymbol\n    SymbolExtractor --> MethodSymbol\n    FeatureLabeller --> ClassSymbol"
+    },
+    {
+      "kind": "SEQUENCE",
+      "feature_name": "Reverse-Engineer Software Features",
+      "uml_text": "@startuml\ntitle Feature: Reverse-Engineer Software Features - Sequence Diagram\nautonumber\nparticipant SequenceDiagramStrategy\nparticipant SymbolExtractor\nparticipant UpdateFeatureRequest\nparticipant GitHubIngestRequest\nparticipant EvaluateRequest\nparticipant TestSymbolExtractor\nparticipant DiagramStrategy\nparticipant MethodSymbol\nparticipant ClassDiagramStrategy\nparticipant ClassSymbol\nparticipant FeatureLabeller\nparticipant ClusterEngine\nSequenceDiagramStrategy -> SymbolExtractor: __init__()\nactivate SymbolExtractor\nSymbolExtractor --> SequenceDiagramStrategy: return\ndeactivate SymbolExtractor\nSymbolExtractor -> UpdateFeatureRequest: execute()\nactivate UpdateFeatureRequest\nUpdateFeatureRequest --> SymbolExtractor: return\ndeactivate UpdateFeatureRequest\nUpdateFeatureRequest -> GitHubIngestRequest: execute()\nactivate GitHubIngestRequest\nGitHubIngestRequest --> UpdateFeatureRequest: return\ndeactivate GitHubIngestRequest\nGitHubIngestRequest -> EvaluateRequest: execute()\nactivate EvaluateRequest\nEvaluateRequest --> GitHubIngestRequest: return\ndeactivate EvaluateRequest\nEvaluateRequest -> TestSymbolExtractor: setUp()\nactivate TestSymbolExtractor\nTestSymbolExtractor --> EvaluateRequest: return\ndeactivate TestSymbolExtractor\nTestSymbolExtractor -> DiagramStrategy: generate()\nactivate DiagramStrategy\nDiagramStrategy --> TestSymbolExtractor: return\ndeactivate DiagramStrategy\nDiagramStrategy -> MethodSymbol: execute()\nactivate MethodSymbol\nMethodSymbol --> DiagramStrategy: return\ndeactivate MethodSymbol\nMethodSymbol -> ClassDiagramStrategy: generate()\nactivate ClassDiagramStrategy\nClassDiagramStrategy --> MethodSymbol: return\ndeactivate ClassDiagramStrategy\nClassDiagramStrategy -> ClassSymbol: get_imports()\nactivate ClassSymbol\nClassSymbol --> ClassDiagramStrategy: return\ndeactivate ClassSymbol\nClassSymbol -> FeatureLabeller: __init__()\nactivate FeatureLabeller\nFeatureLabeller --> ClassSymbol: return\ndeactivate FeatureLabeller\nFeatureLabeller -> ClusterEngine: __init__()\nactivate ClusterEngine\nClusterEngine --> FeatureLabeller: return\ndeactivate ClusterEngine\n@enduml",
+      "svg_content": "sequenceDiagram\n    %% Feature: Reverse-Engineer Software Features\n    participant SequenceDiagramStrategy as \"SequenceDiagramStrategy\"\n    participant SymbolExtractor as \"SymbolExtractor\"\n    participant UpdateFeatureRequest as \"UpdateFeatureRequest\"\n    participant GitHubIngestRequest as \"GitHubIngestRequest\"\n    participant EvaluateRequest as \"EvaluateRequest\"\n    participant TestSymbolExtractor as \"TestSymbolExtractor\"\n    participant DiagramStrategy as \"DiagramStrategy\"\n    participant MethodSymbol as \"MethodSymbol\"\n    participant ClassDiagramStrategy as \"ClassDiagramStrategy\"\n    participant ClassSymbol as \"ClassSymbol\"\n    participant FeatureLabeller as \"FeatureLabeller\"\n    participant ClusterEngine as \"ClusterEngine\"\n    SequenceDiagramStrategy->>+SymbolExtractor: __init__()\n    SymbolExtractor-->>-SequenceDiagramStrategy: result\n    SymbolExtractor->>+UpdateFeatureRequest: execute()\n    UpdateFeatureRequest-->>-SymbolExtractor: result\n    UpdateFeatureRequest->>+GitHubIngestRequest: execute()\n    GitHubIngestRequest-->>-UpdateFeatureRequest: result\n    GitHubIngestRequest->>+EvaluateRequest: execute()\n    EvaluateRequest-->>-GitHubIngestRequest: result\n    EvaluateRequest->>+TestSymbolExtractor: setUp()\n    TestSymbolExtractor-->>-EvaluateRequest: result\n    TestSymbolExtractor->>+DiagramStrategy: generate()\n    DiagramStrategy-->>-TestSymbolExtractor: result\n    DiagramStrategy->>+MethodSymbol: execute()\n    MethodSymbol-->>-DiagramStrategy: result\n    MethodSymbol->>+ClassDiagramStrategy: generate()\n    ClassDiagramStrategy-->>-MethodSymbol: result\n    ClassDiagramStrategy->>+ClassSymbol: get_imports()\n    ClassSymbol-->>-ClassDiagramStrategy: result\n    ClassSymbol->>+FeatureLabeller: __init__()\n    FeatureLabeller-->>-ClassSymbol: result\n    FeatureLabeller->>+ClusterEngine: __init__()\n    ClusterEngine-->>-FeatureLabeller: result"
+    },
+    {
+      "kind": "CLASS",
+      "feature_name": "AI-Powered Software Feature Identification",
+      "uml_text": "@startuml\ntitle Feature: AI-Powered Software Feature Identification - Class Diagram\nskinparam classAttributeIconSize 0\nskinparam roundcorner 5\nskinparam packageStyle rectangle\nclass Init {\n  - __version__: Any\n}\nclass GitService {\n  + is_valid_github_url(url): bool\n  + normalize_github_url(url): str\n  + extract_repo_name(url): str\n  + clone_repository(github_url, destination_dir, depth): Any\n  + get_commit_history(repo_dir, limit): Any\n  + get_diff_summary(repo_dir, commit_hash): Any\n}\nclass EvaluationService {\n  + evaluate(ground_truth, predicted_features): Any\n}\nclass GroundTruth {\n  - __init__(repo_name, feature_mapping): Any\n  + add_feature(feature_name, classes): Any\n  + classes_for(feature_name): Any\n  + get_features(): Any\n}\nclass DiffAnalyzer {\n  - __init__(llm_client): Any\n  + analyze_diff(diff_text, changed_files, commit_message, classes): Any\n}\nclass Cluster {\n  - __init__(cluster_id, class_names): Any\n  + add_class(name): Any\n  + size(): int\n  + class_names(): Any\n  - __repr__(): Any\n}\nclass TestClusterEngine {\n  + setUp(): Any\n  + test_empty_classes(): Any\n  + test_benchmark_clustering(): Any\n}\nclass LLMClient {\n  - __init__(model): Any\n  + ask(prompt): str\n  # _heuristic_fallback(prompt): str\n}\nclass TestBackendAPI {\n  + setUp(): Any\n  + tearDown(): Any\n  + test_root_endpoint(): Any\n  + test_tc01_login_and_dashboard_access(): Any\n  + test_tc02_repository_validation_negative_cases(): Any\n  + test_tc03_ai_feature_identification_and_review(): Any\n  + test_tc04_uml_diagram_generation(): Any\n}\nTestBackendAPI ..> LLMClient : setUp\nEvaluationService ..> GroundTruth : uses\nDiffAnalyzer ..> LLMClient : __init__\n@enduml",
+      "svg_content": "classDiagram\n    %% Feature: AI-Powered Software Feature Identification\n    class Init {\n        +Any __version__\n    }\n    class GitService {\n        +is_valid_github_url() bool\n        +normalize_github_url() str\n        +extract_repo_name() str\n        +clone_repository() Any\n        +get_commit_history() Any\n        +get_diff_summary() Any\n    }\n    class EvaluationService {\n        +evaluate() Any\n    }\n    class GroundTruth {\n        +__init__() Any\n        +add_feature() Any\n        +classes_for() Any\n        +get_features() Any\n    }\n    class DiffAnalyzer {\n        +__init__() Any\n        +analyze_diff() Any\n    }\n    class Cluster {\n        +__init__() Any\n        +add_class() Any\n        +size() int\n        +class_names() Any\n        +__repr__() Any\n    }\n    class TestClusterEngine {\n        +setUp() Any\n        +test_empty_classes() Any\n        +test_benchmark_clustering() Any\n    }\n    class LLMClient {\n        +__init__() Any\n        +ask() str\n        +_heuristic_fallback() str\n    }\n    class TestBackendAPI {\n        +setUp() Any\n        +tearDown() Any\n        +test_root_endpoint() Any\n        +test_tc01_login_and_dashboard_access() Any\n        +test_tc02_repository_validation_negative_cases() Any\n        +test_tc03_ai_feature_identification_and_review() Any\n        +test_tc04_uml_diagram_generation() Any\n    }\n    TestBackendAPI --> LLMClient\n    EvaluationService --> GroundTruth\n    DiffAnalyzer --> LLMClient"
+    },
+    {
+      "kind": "SEQUENCE",
+      "feature_name": "AI-Powered Software Feature Identification",
+      "uml_text": "@startuml\ntitle Feature: AI-Powered Software Feature Identification - Sequence Diagram\nautonumber\nparticipant Init\nparticipant GitService\nparticipant EvaluationService\nparticipant GroundTruth\nparticipant DiffAnalyzer\nparticipant Cluster\nparticipant TestClusterEngine\nparticipant LLMClient\nparticipant TestBackendAPI\nTestBackendAPI -> LLMClient: _heuristic_fallback()\nactivate LLMClient\nLLMClient --> TestBackendAPI: return\ndeactivate LLMClient\n@enduml",
+      "svg_content": "sequenceDiagram\n    %% Feature: AI-Powered Software Feature Identification\n    participant Init as \"Init\"\n    participant GitService as \"GitService\"\n    participant EvaluationService as \"EvaluationService\"\n    participant GroundTruth as \"GroundTruth\"\n    participant DiffAnalyzer as \"DiffAnalyzer\"\n    participant Cluster as \"Cluster\"\n    participant TestClusterEngine as \"TestClusterEngine\"\n    participant LLMClient as \"LLMClient\"\n    participant TestBackendAPI as \"TestBackendAPI\"\n    TestBackendAPI->>+LLMClient: _heuristic_fallback()\n    LLMClient-->>-TestBackendAPI: result"
+    }
+  ]
+}

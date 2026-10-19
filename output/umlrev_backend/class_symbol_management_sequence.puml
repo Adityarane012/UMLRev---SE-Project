@@ -1,0 +1,5 @@
+@startuml
+title Feature: Class Symbol Management - Sequence Diagram
+autonumber
+participant ClassSymbol
+@enduml

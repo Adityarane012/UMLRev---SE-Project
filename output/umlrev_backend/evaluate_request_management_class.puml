@@ -1,0 +1,9 @@
+@startuml
+title Feature: Evaluate Request Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class EvaluateRequest {
+  - ground_truth: Any
+}
+@enduml

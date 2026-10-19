@@ -18,6 +18,22 @@ export default function DiagramExplorer({
 }) {
   if (!projectData) return null;
 
+  const handleDownload = (content, ext) => {
+    if (!content) return;
+    const currentFeature = projectData.features[selectedFeatureIdx];
+    const featSlug = (currentFeature?.name || 'diagram').toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    const filename = `${featSlug}_${selectedDiagramKind.toLowerCase()}.${ext}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="glass-card" style={{ padding: '1.5rem' }}>
       {/* Top Toolbar */}
@@ -61,6 +77,7 @@ export default function DiagramExplorer({
         {/* Diagram Kind Toggle */}
         <div style={{ display: 'flex', background: 'rgba(11, 15, 25, 0.8)', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
           <button
+            type="button"
             className={`tab-btn ${selectedDiagramKind === 'CLASS' ? 'active' : ''}`}
             onClick={() => setSelectedDiagramKind('CLASS')}
             style={{ padding: '0.4rem 1rem', fontSize: '0.82rem' }}
@@ -68,6 +85,7 @@ export default function DiagramExplorer({
             Class Diagram
           </button>
           <button
+            type="button"
             className={`tab-btn ${selectedDiagramKind === 'SEQUENCE' ? 'active' : ''}`}
             onClick={() => setSelectedDiagramKind('SEQUENCE')}
             style={{ padding: '0.4rem 1rem', fontSize: '0.82rem' }}
@@ -79,33 +97,37 @@ export default function DiagramExplorer({
         {/* Code / Visual View Mode */}
         <div style={{ display: 'flex', background: 'rgba(11, 15, 25, 0.8)', padding: '0.25rem', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
           <button
+            type="button"
             className={`tab-btn ${codeTab === 'visual' ? 'active' : ''}`}
             onClick={() => setCodeTab('visual')}
             style={{ padding: '0.4rem 0.85rem', fontSize: '0.82rem' }}
           >
-            Visual
+            Visual Canvas
           </button>
           <button
+            type="button"
             className={`tab-btn ${codeTab === 'mermaid' ? 'active' : ''}`}
             onClick={() => setCodeTab('mermaid')}
             style={{ padding: '0.4rem 0.85rem', fontSize: '0.82rem' }}
           >
-            Mermaid
+            Mermaid Code
           </button>
           <button
+            type="button"
             className={`tab-btn ${codeTab === 'plantuml' ? 'active' : ''}`}
             onClick={() => setCodeTab('plantuml')}
             style={{ padding: '0.4rem 0.85rem', fontSize: '0.82rem' }}
           >
-            PlantUML
+            PlantUML Code
           </button>
         </div>
 
-        {/* Direct Plug-in Clipboard Buttons */}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        {/* Action Buttons: Copy & Export */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
+            type="button"
             className="btn btn-secondary"
-            style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}
+            style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
             onClick={() => {
               if (currentDiag) onCopy(currentDiag.svg_content, 'Mermaid');
             }}
@@ -113,13 +135,32 @@ export default function DiagramExplorer({
             Copy Mermaid
           </button>
           <button
+            type="button"
             className="btn btn-primary"
-            style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}
+            style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
             onClick={() => {
               if (currentDiag) onCopy(currentDiag.uml_text, 'PlantUML');
             }}
           >
             Copy PlantUML
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
+            onClick={() => currentDiag && handleDownload(currentDiag.uml_text, 'puml')}
+            title="Download PlantUML source file"
+          >
+            ↓ .puml
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
+            onClick={() => currentDiag && handleDownload(currentDiag.svg_content, 'mmd')}
+            title="Download Mermaid source file"
+          >
+            ↓ .mmd
           </button>
         </div>
       </div>
@@ -127,9 +168,9 @@ export default function DiagramExplorer({
       {/* Stage Canvas */}
       <div className="diagram-stage" style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s ease' }}>
         <div className="diagram-controls">
-          <button className="ctrl-btn" onClick={() => setZoomLevel((z) => Math.min(z + 0.15, 2.0))}>+</button>
-          <button className="ctrl-btn" onClick={() => setZoomLevel((z) => Math.max(z - 0.15, 0.6))}>-</button>
-          <button className="ctrl-btn" onClick={() => setZoomLevel(1)}>Reset</button>
+          <button type="button" className="ctrl-btn" onClick={() => setZoomLevel((z) => Math.min(z + 0.15, 2.0))}>+</button>
+          <button type="button" className="ctrl-btn" onClick={() => setZoomLevel((z) => Math.max(z - 0.15, 0.6))}>-</button>
+          <button type="button" className="ctrl-btn" onClick={() => setZoomLevel(1)}>Reset</button>
         </div>
 
         {codeTab === 'visual' && (
@@ -141,6 +182,7 @@ export default function DiagramExplorer({
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
               <span>Mermaid markup:</span>
               <button
+                type="button"
                 className="btn btn-secondary"
                 style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem' }}
                 onClick={() => currentDiag && onCopy(currentDiag.svg_content, 'Mermaid')}
@@ -170,6 +212,7 @@ export default function DiagramExplorer({
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: 'var(--text-muted)', fontSize: '0.82rem' }}>
               <span>PlantUML markup:</span>
               <button
+                type="button"
                 className="btn btn-secondary"
                 style={{ padding: '0.2rem 0.6rem', fontSize: '0.75rem' }}
                 onClick={() => currentDiag && onCopy(currentDiag.uml_text, 'PlantUML')}
@@ -209,6 +252,7 @@ export default function DiagramExplorer({
         }}
       >
         <button
+          type="button"
           className="btn btn-secondary"
           onClick={onGoToDiff}
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem' }}
@@ -218,6 +262,7 @@ export default function DiagramExplorer({
         </button>
 
         <button
+          type="button"
           className="btn btn-primary"
           onClick={onGoToEval}
           style={{

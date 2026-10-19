@@ -1,0 +1,17 @@
+@startuml
+title Feature: AI-Powered Software Feature Identification - Sequence Diagram
+autonumber
+participant Init
+participant GitService
+participant EvaluationService
+participant GroundTruth
+participant DiffAnalyzer
+participant Cluster
+participant TestClusterEngine
+participant LLMClient
+participant TestBackendAPI
+TestBackendAPI -> LLMClient: _heuristic_fallback()
+activate LLMClient
+LLMClient --> TestBackendAPI: return
+deactivate LLMClient
+@enduml

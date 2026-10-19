@@ -1,0 +1,5 @@
+@startuml
+title Feature: __Init__ Management - Sequence Diagram
+autonumber
+participant __init__
+@enduml

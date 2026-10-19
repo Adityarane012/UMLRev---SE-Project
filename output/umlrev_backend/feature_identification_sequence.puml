@@ -1,0 +1,27 @@
+@startuml
+title Feature: Feature Identification - Sequence Diagram
+autonumber
+participant FeatureLabeller
+participant Cluster
+participant Feature
+FeatureLabeller -> Cluster: class_names()
+activate Cluster
+Cluster --> FeatureLabeller: return
+deactivate Cluster
+FeatureLabeller -> Feature: add_class()
+activate Feature
+Feature --> FeatureLabeller: return
+deactivate Feature
+FeatureLabeller -> Cluster: class_names()
+activate Cluster
+Cluster --> FeatureLabeller: return
+deactivate Cluster
+FeatureLabeller -> Cluster: class_names()
+activate Cluster
+Cluster --> FeatureLabeller: return
+deactivate Cluster
+FeatureLabeller -> Cluster: class_names()
+activate Cluster
+Cluster --> FeatureLabeller: return
+deactivate Cluster
+@enduml

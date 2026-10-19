@@ -3,10 +3,12 @@ title Feature: Tell Story - Class Diagram
 skinparam classAttributeIconSize 0
 skinparam roundcorner 5
 skinparam packageStyle rectangle
-class Enemy {
+class Princess {
   - name: String
-  + capture(Princess princess): void
-  + guard(Princess princess): void
+  - isCaptured: boolean
+  + setCaptured(boolean captured): void
+  + release(): void
+  + getName(): String
 }
 class Hero {
   - name: String
@@ -20,12 +22,10 @@ class Story {
   + start(): void
   + tell(): void
 }
-class Princess {
+class Enemy {
   - name: String
-  - isCaptured: boolean
-  + setCaptured(boolean captured): void
-  + release(): void
-  + getName(): String
+  + capture(Princess princess): void
+  + guard(Princess princess): void
 }
 Enemy ..> Princess : capture
 Enemy ..> Princess : guard

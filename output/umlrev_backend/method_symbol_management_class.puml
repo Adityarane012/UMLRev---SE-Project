@@ -1,0 +1,13 @@
+@startuml
+title Feature: Method Symbol Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class MethodSymbol {
+  - name: str
+  - return_type: str
+  - parameters: Any
+  - visibility: str
+  - called_methods: Any
+}
+@enduml

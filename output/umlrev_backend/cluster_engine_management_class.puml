@@ -1,0 +1,10 @@
+@startuml
+title Feature: Cluster Engine Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class ClusterEngine {
+  - __init__(min_cluster_size, max_clusters): Any
+  + cluster(classes, relationships): Any
+}
+@enduml

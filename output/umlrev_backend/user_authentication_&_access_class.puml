@@ -1,0 +1,10 @@
+@startuml
+title Feature: User Authentication & Access - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class LoginRequest {
+  - username: str
+  - password: str
+}
+@enduml

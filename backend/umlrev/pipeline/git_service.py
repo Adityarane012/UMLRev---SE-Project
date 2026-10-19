@@ -10,14 +10,27 @@ class GitService:
 
     @staticmethod
     def is_valid_github_url(url: str) -> bool:
-        pattern = r"^(https?://)?(www\.)?github\.com/[\w\-]+/[\w\-\.]+(/)?$"
-        return bool(re.match(pattern, url.strip()))
+        if not url or not isinstance(url, str):
+            return False
+        clean = url.strip()
+        pattern = r"^(https?://)?(www\.)?github\.com/[a-zA-Z0-9_\-]+/[a-zA-Z0-9_\-\.]+(?:/.*)?$"
+        return bool(re.match(pattern, clean))
+
+    @staticmethod
+    def normalize_github_url(url: str) -> str:
+        clean = url.strip().rstrip("/")
+        if not clean.startswith("http://") and not clean.startswith("https://"):
+            clean = f"https://{clean}"
+        parts = clean.split("/")
+        if len(parts) >= 5:
+            clean = f"{parts[0]}//{parts[2]}/{parts[3]}/{parts[4]}"
+        if clean.endswith(".git"):
+            clean = clean[:-4]
+        return clean
 
     @staticmethod
     def extract_repo_name(url: str) -> str:
-        clean = url.strip().rstrip("/")
-        if clean.endswith(".git"):
-            clean = clean[:-4]
+        clean = GitService.normalize_github_url(url)
         return clean.split("/")[-1]
 
     @staticmethod
@@ -36,7 +49,9 @@ class GitService:
                 capture_output=True,
                 text=True,
                 check=True,
-                timeout=120
+                timeout=120,
+                encoding="utf-8",
+                errors="replace"
             )
             return {
                 "success": True,
@@ -56,14 +71,22 @@ class GitService:
             }
 
     @staticmethod
-    def get_commit_history(repo_dir: str, limit: int = 10) -> List[Dict[str, str]]:
+    def get_commit_history(repo_dir: str, limit: int = 15) -> List[Dict[str, str]]:
         """Retrieves recent commit history."""
         if not os.path.exists(os.path.join(repo_dir, ".git")):
             return []
 
         cmd = ["git", "log", f"-n{limit}", "--pretty=format:%h|%an|%s|%cI"]
         try:
-            res = subprocess.run(cmd, cwd=repo_dir, capture_output=True, text=True, check=True)
+            res = subprocess.run(
+                cmd,
+                cwd=repo_dir,
+                capture_output=True,
+                text=True,
+                check=True,
+                encoding="utf-8",
+                errors="replace"
+            )
             commits = []
             for line in res.stdout.strip().split("\n"):
                 if line.strip():
@@ -82,33 +105,65 @@ class GitService:
     @staticmethod
     def get_diff_summary(repo_dir: str, commit_hash: Optional[str] = None) -> Dict[str, Any]:
         """
-        Extracts git diff for a commit or HEAD~1 vs HEAD.
-        Returns changed files and diff content.
+        Extracts git diff for a commit or HEAD. Handles normal commits with parents,
+        as well as root commits and shallow graft points without parents.
         """
         if not os.path.exists(os.path.join(repo_dir, ".git")):
             return {"changed_files": [], "diff_text": "", "summary": "No git repository found"}
 
         try:
-            # Check commit count
-            count_res = subprocess.run(["git", "rev-list", "--count", "HEAD"], cwd=repo_dir, capture_output=True, text=True)
-            count = int(count_res.stdout.strip()) if count_res.stdout.strip().isdigit() else 1
+            target = commit_hash.strip() if commit_hash and commit_hash.strip() else "HEAD"
 
-            if count <= 1:
-                # Only 1 commit, diff against empty tree
-                diff_cmd = ["git", "show", "--stat", "--name-only", "HEAD"]
-                raw_diff_cmd = ["git", "show", "HEAD"]
-            elif commit_hash:
-                diff_cmd = ["git", "diff", f"{commit_hash}~1", commit_hash, "--name-only"]
-                raw_diff_cmd = ["git", "diff", f"{commit_hash}~1", commit_hash]
+            # Check if target commit has a valid parent
+            parent_check = subprocess.run(
+                ["git", "rev-parse", "--verify", "--quiet", f"{target}~1"],
+                cwd=repo_dir,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            has_parent = (parent_check.returncode == 0)
+
+            if has_parent:
+                diff_cmd = ["git", "diff", f"{target}~1", target, "--name-only"]
+                raw_diff_cmd = ["git", "diff", f"{target}~1", target]
             else:
-                diff_cmd = ["git", "diff", "HEAD~1", "HEAD", "--name-only"]
-                raw_diff_cmd = ["git", "diff", "HEAD~1", "HEAD"]
+                diff_cmd = ["git", "show", "--pretty=", "--name-only", target]
+                raw_diff_cmd = ["git", "show", target]
 
-            files_res = subprocess.run(diff_cmd, cwd=repo_dir, capture_output=True, text=True)
-            changed_files = [f.strip() for f in files_res.stdout.strip().split("\n") if f.strip() and not f.startswith("commit")]
+            files_res = subprocess.run(
+                diff_cmd,
+                cwd=repo_dir,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            changed_files = [
+                f.strip() for f in files_res.stdout.strip().split("\n")
+                if f.strip() and not f.startswith("commit") and not f.startswith("Author")
+            ]
 
-            diff_res = subprocess.run(raw_diff_cmd, cwd=repo_dir, capture_output=True, text=True)
-            diff_text = diff_res.stdout[:5000]  # Cap at 5000 chars for LLM prompt
+            diff_res = subprocess.run(
+                raw_diff_cmd,
+                cwd=repo_dir,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            diff_text = diff_res.stdout[:5000]
+
+            count_res = subprocess.run(
+                ["git", "rev-list", "--count", "HEAD"],
+                cwd=repo_dir,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace"
+            )
+            count = int(count_res.stdout.strip()) if count_res.stdout.strip().isdigit() else 1
 
             return {
                 "changed_files": changed_files,

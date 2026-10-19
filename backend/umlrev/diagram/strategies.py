@@ -1,9 +1,28 @@
+import re
 from abc import ABC, abstractmethod
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Dict
 from ..model.feature import Feature
 from ..model.project import Project
 from ..model.diagram import Diagram, DiagramKind
 from ..model.symbol import ClassSymbol, Relationship
+
+def sanitize_ident(name: str) -> str:
+    """Sanitizes names into valid identifiers for PlantUML and Mermaid."""
+    cleaned = re.sub(r'[^a-zA-Z0-9_]', '_', name.strip())
+    if cleaned and cleaned[0].isdigit():
+        cleaned = f"_{cleaned}"
+    return cleaned or "Symbol"
+
+def sanitize_mermaid_type(type_name: str) -> str:
+    """Converts complex types to valid Mermaid syntax (e.g. List<T> -> List~T~)."""
+    if not type_name:
+        return "Any"
+    t = type_name.strip()
+    # Replace generics < > with ~ ~ for Mermaid
+    t = t.replace("<", "~").replace(">", "~")
+    # Remove unsupported characters
+    t = re.sub(r'[^a-zA-Z0-9_~]', '', t)
+    return t or "Any"
 
 class DiagramStrategy(ABC):
     """Abstract Strategy interface for diagram generation (Strategy Pattern)."""
@@ -17,7 +36,7 @@ class ClassDiagramStrategy(DiagramStrategy):
 
     def generate(self, feature: Feature, project: Project, modified_classes: Optional[Set[str]] = None) -> Diagram:
         feature_classes: Set[str] = set(feature.class_names)
-        relevant_symbols = [project.classes[c] for c in feature_classes if c in project.classes]
+        relevant_symbols = [project.classes[c] for c in feature.class_names if c in project.classes]
         mods = modified_classes or set()
 
         # 1. Generate PlantUML
@@ -36,59 +55,83 @@ class ClassDiagramStrategy(DiagramStrategy):
             lines.append("}")
 
         for sym in relevant_symbols:
+            safe_id = sanitize_ident(sym.name)
             kind_str = "interface" if sym.is_interface else "class"
             mod_tag = " <<Modified>>" if sym.name in mods else ""
-            lines.append(f"{kind_str} {sym.name}{mod_tag} {{")
+            if safe_id != sym.name:
+                lines.append(f'{kind_str} "{sym.name}" as {safe_id}{mod_tag} {{')
+            else:
+                lines.append(f"{kind_str} {safe_id}{mod_tag} {{")
+
             for f in sym.fields[:10]:
                 vis_sym = "-" if f.visibility == "private" else ("#" if f.visibility == "protected" else "+")
-                lines.append(f"  {vis_sym} {f.name}: {f.type_name}")
+                clean_fname = sanitize_ident(f.name)
+                lines.append(f"  {vis_sym} {clean_fname}: {f.type_name}")
+
             for m in sym.methods[:12]:
                 vis_sym = "-" if m.visibility == "private" else ("#" if m.visibility == "protected" else "+")
-                param_str = ", ".join(m.parameters[:4])
-                lines.append(f"  {vis_sym} {m.name}({param_str}): {m.return_type}")
+                clean_mname = sanitize_ident(m.name)
+                clean_params = ", ".join([sanitize_ident(p) for p in m.parameters[:4]])
+                lines.append(f"  {vis_sym} {clean_mname}({clean_params}): {m.return_type}")
+
             lines.append("}")
 
-        # Add relationships involving feature classes
+        # Add relationships
         for rel in project.relationships:
             if rel.source_class in feature_classes and rel.target_class in feature_classes:
+                src_id = sanitize_ident(rel.source_class)
+                tgt_id = sanitize_ident(rel.target_class)
                 if rel.rel_type == "inheritance":
-                    lines.append(f"{rel.target_class} <|-- {rel.source_class}")
+                    lines.append(f"{tgt_id} <|-- {src_id}")
                 elif rel.rel_type == "realization":
-                    lines.append(f"{rel.target_class} <|.. {rel.source_class}")
+                    lines.append(f"{tgt_id} <|.. {src_id}")
                 elif rel.rel_type == "association":
-                    label_str = f" : {rel.label}" if rel.label else ""
-                    lines.append(f"{rel.source_class} --> {rel.target_class}{label_str}")
+                    label_str = f" : {sanitize_ident(rel.label)}" if rel.label else ""
+                    lines.append(f"{src_id} --> {tgt_id}{label_str}")
                 elif rel.rel_type == "dependency":
-                    label_str = f" : <<use>>" if not rel.label else f" : {rel.label}"
-                    lines.append(f"{rel.source_class} ..> {rel.target_class}{label_str}")
+                    label_str = f" : <<use>>" if not rel.label else f" : {sanitize_ident(rel.label)}"
+                    lines.append(f"{src_id} ..> {tgt_id}{label_str}")
 
         lines.append("@enduml")
         plantuml_text = "\n".join(lines)
 
-        # 2. Generate Mermaid Class Diagram for web rendering / copy-paste
+        # 2. Generate Mermaid Class Diagram
         m_lines = ["classDiagram", f"    %% Feature: {feature.name}"]
-        for sym in relevant_symbols:
-            m_lines.append(f"    class {sym.name} {{")
-            for f in sym.fields[:6]:
-                m_lines.append(f"        +{f.type_name} {f.name}")
-            for m in sym.methods[:6]:
-                m_lines.append(f"        +{m.name}() {m.return_type}")
+        if not relevant_symbols:
+            safe_name = sanitize_ident(feature.name) or "CoreModule"
+            m_lines.append(f"    class {safe_name} {{")
+            m_lines.append("        +execute() void")
             m_lines.append("    }")
+        else:
+            for sym in relevant_symbols:
+                safe_id = sanitize_ident(sym.name)
+                m_lines.append(f"    class {safe_id} {{")
+                for f in sym.fields[:8]:
+                    c_type = sanitize_mermaid_type(f.type_name)
+                    c_name = sanitize_ident(f.name)
+                    m_lines.append(f"        +{c_type} {c_name}")
+                for m in sym.methods[:8]:
+                    c_ret = sanitize_mermaid_type(m.return_type)
+                    c_name = sanitize_ident(m.name)
+                    m_lines.append(f"        +{c_name}() {c_ret}")
+                m_lines.append("    }")
 
         for rel in project.relationships:
             if rel.source_class in feature_classes and rel.target_class in feature_classes:
+                src_id = sanitize_ident(rel.source_class)
+                tgt_id = sanitize_ident(rel.target_class)
                 if rel.rel_type == "inheritance":
-                    m_lines.append(f"    {rel.target_class} <|-- {rel.source_class}")
+                    m_lines.append(f"    {tgt_id} <|-- {src_id}")
                 elif rel.rel_type == "realization":
-                    m_lines.append(f"    {rel.target_class} <|.. {rel.source_class}")
+                    m_lines.append(f"    {tgt_id} <|.. {src_id}")
                 elif rel.rel_type in ("association", "dependency"):
-                    m_lines.append(f"    {rel.source_class} --> {rel.target_class}")
+                    m_lines.append(f"    {src_id} --> {tgt_id}")
 
         if mods:
             m_lines.append("    classDef modified fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#fff;")
             for m_cls in mods:
                 if m_cls in feature_classes:
-                    m_lines.append(f"    class {m_cls} modified;")
+                    m_lines.append(f"    class {sanitize_ident(m_cls)} modified;")
 
         mermaid_text = "\n".join(m_lines)
 
@@ -104,7 +147,7 @@ class SequenceDiagramStrategy(DiagramStrategy):
 
     def generate(self, feature: Feature, project: Project, modified_classes: Optional[Set[str]] = None) -> Diagram:
         feature_classes = set(feature.class_names)
-        relevant_symbols = [project.classes[c] for c in feature_classes if c in project.classes]
+        relevant_symbols = [project.classes[c] for c in feature.class_names if c in project.classes]
         mods = modified_classes or set()
 
         # Extract message sequences from method call interactions
@@ -119,10 +162,11 @@ class SequenceDiagramStrategy(DiagramStrategy):
                                 messages.append({
                                     "sender": sym.name,
                                     "receiver": fc,
-                                    "method": target_method,
-                                    "caller_method": method.name
+                                    "method": sanitize_ident(target_method),
+                                    "caller_method": sanitize_ident(method.name)
                                 })
 
+        # Heuristic fallback if no explicit calls detected
         if not messages and len(relevant_symbols) >= 2:
             names = [s.name for s in relevant_symbols]
             for i in range(len(names) - 1):
@@ -133,9 +177,19 @@ class SequenceDiagramStrategy(DiagramStrategy):
                 messages.append({
                     "sender": src,
                     "receiver": tgt,
-                    "method": m_name,
+                    "method": sanitize_ident(m_name),
                     "caller_method": "handle"
                 })
+        elif not messages and len(relevant_symbols) == 1:
+            # Single class self-activation
+            s_name = relevant_symbols[0].name
+            m_name = relevant_symbols[0].methods[0].name if relevant_symbols[0].methods else "process"
+            messages.append({
+                "sender": s_name,
+                "receiver": s_name,
+                "method": sanitize_ident(m_name),
+                "caller_method": "init"
+            })
 
         # 1. Generate PlantUML Sequence Diagram
         p_lines = [
@@ -144,14 +198,27 @@ class SequenceDiagramStrategy(DiagramStrategy):
             f"autonumber"
         ]
         for c in feature.class_names:
+            c_id = sanitize_ident(c)
             color_tag = " #E8F5E9" if c in mods else ""
-            p_lines.append(f"participant {c}{color_tag}")
+            if c_id != c:
+                p_lines.append(f'participant "{c}" as {c_id}{color_tag}')
+            else:
+                p_lines.append(f"participant {c_id}{color_tag}")
 
-        for msg in messages:
-            p_lines.append(f"{msg['sender']} -> {msg['receiver']}: {msg['method']}()")
-            p_lines.append(f"activate {msg['receiver']}")
-            p_lines.append(f"{msg['receiver']} --> {msg['sender']}: return")
-            p_lines.append(f"deactivate {msg['receiver']}")
+        if not messages:
+            p_lines.append("participant System")
+            p_lines.append("System -> System: execute()")
+            p_lines.append("activate System")
+            p_lines.append("System --> System: completed")
+            p_lines.append("deactivate System")
+        else:
+            for msg in messages:
+                s_id = sanitize_ident(msg['sender'])
+                r_id = sanitize_ident(msg['receiver'])
+                p_lines.append(f"{s_id} -> {r_id}: {msg['method']}()")
+                p_lines.append(f"activate {r_id}")
+                p_lines.append(f"{r_id} --> {s_id}: return")
+                p_lines.append(f"deactivate {r_id}")
 
         p_lines.append("@enduml")
         plantuml_text = "\n".join(p_lines)
@@ -159,11 +226,20 @@ class SequenceDiagramStrategy(DiagramStrategy):
         # 2. Generate Mermaid Sequence Diagram
         m_lines = ["sequenceDiagram", f"    %% Feature: {feature.name}"]
         for c in feature.class_names:
-            m_lines.append(f"    participant {c}")
+            c_id = sanitize_ident(c)
+            m_lines.append(f'    participant {c_id} as "{c}"')
 
-        for msg in messages:
-            m_lines.append(f"    {msg['sender']}->>+{msg['receiver']}: {msg['method']}()")
-            m_lines.append(f"    {msg['receiver']}-->>-{msg['sender']}: result")
+        if not messages:
+            if not feature.class_names:
+                m_lines.append('    participant System as "System"')
+            m_lines.append("    System->>+System: execute()")
+            m_lines.append("    System-->>-System: result")
+        else:
+            for msg in messages:
+                s_id = sanitize_ident(msg['sender'])
+                r_id = sanitize_ident(msg['receiver'])
+                m_lines.append(f"    {s_id}->>+{r_id}: {msg['method']}()")
+                m_lines.append(f"    {r_id}-->>-{s_id}: result")
 
         mermaid_text = "\n".join(m_lines)
 

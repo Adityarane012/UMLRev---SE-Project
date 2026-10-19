@@ -1,0 +1,5 @@
+@startuml
+title Feature: Git Service Management - Sequence Diagram
+autonumber
+participant GitService
+@enduml

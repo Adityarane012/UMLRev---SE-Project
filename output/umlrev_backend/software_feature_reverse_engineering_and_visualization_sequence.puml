@@ -1,0 +1,20 @@
+@startuml
+title Feature: Software Feature Reverse Engineering and Visualization - Sequence Diagram
+autonumber
+participant Project
+participant FieldSymbol
+participant DiagramEngine
+participant DiagramKind
+participant Cli
+participant LoginRequest
+participant Feature
+participant FeatureMembership
+participant SourceFile
+participant Relationship
+participant Diagram
+participant DiffAnalysisRequest
+Cli -> Project: to_summary_dict()
+activate Project
+Project --> Cli: return
+deactivate Project
+@enduml

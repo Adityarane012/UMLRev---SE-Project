@@ -1,0 +1,13 @@
+@startuml
+title Feature: Git Service Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class GitService {
+  + is_valid_github_url(url): bool
+  + extract_repo_name(url): str
+  + clone_repository(github_url, destination_dir, depth): Any
+  + get_commit_history(repo_dir, limit): Any
+  + get_diff_summary(repo_dir, commit_hash): Any
+}
+@enduml

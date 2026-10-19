@@ -1,0 +1,9 @@
+@startuml
+title Feature: Evaluation Service Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class EvaluationService {
+  + evaluate(ground_truth, predicted_features): Any
+}
+@enduml

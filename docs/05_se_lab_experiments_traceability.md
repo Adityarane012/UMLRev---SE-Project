@@ -24,6 +24,8 @@ This document tracks how the requirements evolved from initial user stories to f
 │ 6    │ Dynamic Behavioral Modeling (Sequence Diagram)         │ exp6 diagram.png / Exp6.pdf       │
 │ 7    │ Dynamic Collaboration Modeling (Communication Diagram) │ B124_B129_Exp7.pdf                │
 │ 8    │ Information & Data Flow Modeling (DFD Level 0 & 1)     │ umlrev_level0_dfd.png & level1    │
+│ 9    │ Software Testing Techniques (TC-01 to TC-04 QA Matrix) │ B124_B129_Exp9.docx / test_api.py │
+│ 10   │ System Implementation & Post-Testing Deployment        │ B124_B129_Exp10.docx              │
 └──────┴────────────────────────────────────────────────────────┴───────────────────────────────────┘
 ```
 
@@ -129,15 +131,33 @@ This document tracks how the requirements evolved from initial user stories to f
 
 ---
 
+#### Experiment 9: Software Testing Techniques (Black-Box, Boundary, Integration & End-to-End)
+- **Reference:** [B124_B129_Exp9.docx](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/lab_reports/B124_B129_Exp9.docx) and [test_api.py](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/backend/tests/test_api.py)
+- **Key Test Cases & Execution Results:**
+  1. **TC-01 (Login & Dashboard Access — Functional Testing):**
+     - *Objective:* Validate credential verification, token issuance, and dashboard unlock.
+     - *Result:* **PASS** — Token issued with role `Software Developer`; dashboard unlocked for Aditya Rane (B129).
+  2. **TC-02 (Repository Validation — Negative & Boundary Testing):**
+     - *Objective:* Validate system rejection of invalid URLs, empty folders, and unsupported file formats.
+     - *Result:* **PASS** — HTTP 400 Bad Request returned with descriptive messages; pipeline execution safely aborted.
+  3. **TC-03 (AI Feature Identification & Review — Integration Testing):**
+     - *Objective:* Validate automated clustering suggestions, interactive human-in-the-loop review, and persistence of developer approval.
+     - *Result:* **PASS** — Feature renamed, descriptions modified, member classes updated, and changes persisted via `PUT /api/projects/{id}/features`.
+  4. **TC-04 (UML Diagram Generation — End-to-End Testing):**
+     - *Objective:* Validate automated synthesis and visual export of Class and Sequence diagrams.
+     - *Result:* **PASS** — Both Class and Sequence diagrams generated cleanly in PlantUML and Mermaid formats with zero syntax errors.
+
+---
+
 ### 4. Cross-Experiment Traceability Matrix
 
-| Requirement / Concept | Exp 1 (Story) | Exp 2 (NFR/DoD) | Exp 3 (Use Case) | Exp 4 (Activity) | Exp 5 (Class) | Exp 6 & 7 (Seq / Collab) | Exp 8 (DFD) |
-|---|---|---|---|---|---|---|---|
-| **User Authentication** | Admin & Dev Stories | Sec & DoD | `Auth User` | Login / Auth User | `model.Project` | `login()`, `authSuccess()` | `1.0 User & Project` / `D1` |
-| **Repository Ingestion** | Developer Story 1 | Usability & Perf | `Upload or Connect Repo` | Upload / Validate Repo | `SourceFile` | `uploadRepository()`, `validate()` | `2.0 Repository Check` |
-| **AST Symbol Extraction** | Developer Story 1 | DoD | `Analyze Project` | `Analyze Project` | `SymbolExtractor`, `ClassSymbol` | `getSourceCode()` | `3.0 Code Analysis` / `D2` |
-| **AI Feature Identification** | Developer Story 1 | Perf ($\le$ 30s) & DoD | `AI Feature ID` | `AI Feature Identification` | `ClusterEngine`, `FeatureLabeller`, `LLMClient` | `identifyFeatures()`, `featureSuggestions()` | `4.0 AI Feature ID` / `D2` |
-| **Human-in-the-Loop Review** | Developer Story 1 | Usability ($\le$ 3 steps) | `Review and Modify Features` | `Review Features`, `Features Correct?` | `Feature.memberCount()`, `FeatureMembership` | `reviewFeatures()`, `modifyFeatures()`, `approve()` | `5.0 Feature Review` |
-| **Class Diagram Synthesis** | Dev & Arch Stories | Perf ($\le$ 60s) & DoD | `Gen Class Diagram` | `Generate Class Diagram` (Fork) | `ClassDiagramStrategy` | `generateClassDiagram()` | `6.0 UML Gen` / `D3` |
-| **Sequence Diagram Synthesis**| Dev & QA Stories | Perf ($\le$ 60s) & DoD | `Gen Sequence Diagram` | `Generate Sequence Diagram` (Fork) | `SequenceDiagramStrategy`| `generateSequenceDiagram()` | `6.0 UML Gen` / `D3` |
-| **Diagram-as-Code (PlantUML)**| Developer Story 1 | DoD (Exportable) | `Gen Diagram-as-Code` | `UML Generation Complete` | `Diagram.export()` | `viewGeneratedDiagrams()` | `D3 Features / UML` |
+| Requirement / Concept | Exp 1 (Story) | Exp 2 (NFR/DoD) | Exp 3 (Use Case) | Exp 4 (Activity) | Exp 5 (Class) | Exp 6 & 7 (Seq / Collab) | Exp 8 (DFD) | Exp 9 (Testing QA) |
+|---|---|---|---|---|---|---|---|---|
+| **User Authentication** | Admin & Dev Stories | Sec & DoD | `Auth User` | Login / Auth User | `model.Project` | `login()`, `authSuccess()` | `1.0 User & Project` / `D1` | **TC-01** (Login & Dashboard Access - PASS) |
+| **Repository Ingestion** | Developer Story 1 | Usability & Perf | `Upload or Connect Repo` | Upload / Validate Repo | `SourceFile` | `uploadRepository()`, `validate()` | `2.0 Repository Check` | **TC-02** (Repository Validation - PASS) |
+| **AST Symbol Extraction** | Developer Story 1 | DoD | `Analyze Project` | `Analyze Project` | `SymbolExtractor`, `ClassSymbol` | `getSourceCode()` | `3.0 Code Analysis` / `D2` | **TC-03** (Discovers classes & symbols - PASS) |
+| **AI Feature Identification** | Developer Story 1 | Perf ($\le$ 30s) & DoD | `AI Feature ID` | `AI Feature Identification` | `ClusterEngine`, `FeatureLabeller`, `LLMClient` | `identifyFeatures()`, `featureSuggestions()` | `4.0 AI Feature ID` / `D2` | **TC-03** (AI Feature Discovery - PASS) |
+| **Human-in-the-Loop Review** | Developer Story 1 | Usability ($\le$ 3 steps) | `Review and Modify Features` | `Review Features`, `Features Correct?` | `Feature.memberCount()`, `FeatureMembership` | `reviewFeatures()`, `modifyFeatures()`, `approve()` | `5.0 Feature Review` | **TC-03** (Modify & Approve List - PASS) |
+| **Class Diagram Synthesis** | Dev & Arch Stories | Perf ($\le$ 60s) & DoD | `Gen Class Diagram` | `Generate Class Diagram` (Fork) | `ClassDiagramStrategy` | `generateClassDiagram()` | `6.0 UML Gen` / `D3` | **TC-04** (UML Class Diagram - PASS) |
+| **Sequence Diagram Synthesis**| Dev & QA Stories | Perf ($\le$ 60s) & DoD | `Gen Sequence Diagram` | `Generate Sequence Diagram` (Fork) | `SequenceDiagramStrategy`| `generateSequenceDiagram()` | `6.0 UML Gen` / `D3` | **TC-04** (UML Sequence Diagram - PASS) |
+| **Diagram-as-Code (PlantUML)**| Developer Story 1 | DoD (Exportable) | `Gen Diagram-as-Code` | `UML Generation Complete` | `Diagram.export()` | `viewGeneratedDiagrams()` | `D3 Features / UML` | **TC-04** (PlantUML & Mermaid Export - PASS) |

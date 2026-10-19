@@ -1,0 +1,32 @@
+@startuml
+title Feature: Feature Identification - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class FeatureLabeller {
+  - __init__(llm_client): Any
+  + label(cluster, class_map): Feature
+}
+class Cluster {
+  - __init__(cluster_id, class_names): Any
+  + add_class(name): Any
+  + size(): int
+  + class_names(): Any
+  - __repr__(): Any
+}
+class Feature {
+  - name: str
+  - description: str
+  - confidence: float
+  - memberships: Any
+  + member_count(): int
+  + class_names(): Any
+  + add_class(class_name, score, primary): Any
+  + to_dict(): Any
+}
+FeatureLabeller ..> Cluster : label
+FeatureLabeller ..> Feature : label
+FeatureLabeller ..> Cluster : label
+FeatureLabeller ..> Cluster : label
+FeatureLabeller ..> Cluster : label
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+title Feature: Feature Membership Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class FeatureMembership {
+  - class_name: str
+  - score: float
+  - primary: bool
+  + is_primary(): bool
+}
+@enduml

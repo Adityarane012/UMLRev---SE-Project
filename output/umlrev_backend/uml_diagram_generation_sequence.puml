@@ -1,0 +1,15 @@
+@startuml
+title Feature: UML Diagram Generation - Sequence Diagram
+autonumber
+participant DiagramStrategy
+participant SequenceDiagramStrategy
+participant ClassDiagramStrategy
+SequenceDiagramStrategy -> ClassDiagramStrategy: generate()
+activate ClassDiagramStrategy
+ClassDiagramStrategy --> SequenceDiagramStrategy: return
+deactivate ClassDiagramStrategy
+ClassDiagramStrategy -> DiagramStrategy: generate()
+activate DiagramStrategy
+DiagramStrategy --> ClassDiagramStrategy: return
+deactivate DiagramStrategy
+@enduml

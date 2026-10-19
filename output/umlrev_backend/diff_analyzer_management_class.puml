@@ -1,0 +1,10 @@
+@startuml
+title Feature: Diff Analyzer Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class DiffAnalyzer {
+  - __init__(llm_client): Any
+  + analyze_diff(diff_text, changed_files, commit_message, classes): Any
+}
+@enduml

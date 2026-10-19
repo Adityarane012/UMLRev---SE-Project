@@ -1,0 +1,20 @@
+@startuml
+title Feature: Class Symbol Management - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class ClassSymbol {
+  - name: str
+  - package_name: str
+  - is_interface: bool
+  - super_classes: Any
+  - interfaces: Any
+  - fields: Any
+  - methods: Any
+  - imports: Any
+  - file_path: str
+  - docstring: str
+  + get_imports(): Any
+  + qualified_name(): str
+}
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+title Feature: Codebase Structural Analysis - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class TestSymbolExtractor {
+  + setUp(): Any
+  + test_extract_tell_story_classes(): Any
+  + test_extract_methods_and_relationships(): Any
+}
+class SymbolExtractor {
+  - __init__(): Any
+  + scan_directory(folder_path, project_name): Project
+  + extract_from_file(file_path, content, ext): Any
+  # _extract_java(file_path, content): Any
+  # _extract_python(file_path, content): Any
+  # _extract_js_ts(file_path, content): Any
+  + resolve_relationships(classes): Any
+}
+class Project {
+  - name: str
+  - folder_path: str
+  - source_files: Any
+  - classes: Any
+  - relationships: Any
+  - features: Any
+  - diagrams: Any
+  + add_source_file(file_path, content): SourceFile
+  + add_class(symbol): Any
+  + get_class(name): Any
+  + to_summary_dict(): Any
+}
+TestSymbolExtractor ..> Project : test_extract_methods_and_relationships
+SymbolExtractor ..> Project : scan_directory
+SymbolExtractor ..> Project : scan_directory
+@enduml

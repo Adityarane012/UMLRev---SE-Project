@@ -1,0 +1,19 @@
+@startuml
+title Feature: LLM Backend Integration Testing - Class Diagram
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam packageStyle rectangle
+class TestBackendAPI {
+  + setUp(): Any
+  + tearDown(): Any
+  + test_root_endpoint(): Any
+  + test_login_endpoint(): Any
+  + test_project_lifecycle_with_benchmark(): Any
+}
+class LLMClient {
+  - __init__(model): Any
+  + ask(prompt): str
+  # _heuristic_fallback(prompt): str
+}
+TestBackendAPI ..> LLMClient : setUp
+@enduml

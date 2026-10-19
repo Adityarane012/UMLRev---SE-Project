@@ -1,12 +1,15 @@
 """
 Runner utility for AI-Assisted UMLRev
-Allows running CLI analysis or launching the Web System from inside UMLRev.
+Allows running CLI analysis, launching backend/frontend, or launching the unified live demo.
 """
 
 import sys
 import os
 import subprocess
 import argparse
+import threading
+import webbrowser
+import time
 
 # Ensure current script directory is in sys.path
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -49,9 +52,81 @@ def run_frontend():
     print(f"[*] Starting Vite dev server in {frontend_dir}...")
     subprocess.run("npm run dev", shell=True, cwd=frontend_dir)
 
+def is_port_free(port):
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('127.0.0.1', port)) != 0
+
+def run_demo(port=8000):
+    import uvicorn
+    import socket
+
+    # 1. Ensure frontend distribution exists
+    frontend_dist = os.path.join(CUR_DIR, "frontend", "dist")
+    index_html = os.path.join(frontend_dist, "index.html")
+    if not os.path.exists(index_html):
+        print("[*] Compiling frontend distribution bundle...")
+        subprocess.run("npm run build", shell=True, cwd=os.path.join(CUR_DIR, "frontend"))
+
+    # 2. Check port availability; fallback to 8001 or 8080 if occupied
+    demo_port = port
+    if not is_port_free(demo_port):
+        # Check if existing server on 8000 is our UMLRev instance
+        try:
+            import urllib.request
+            resp = urllib.request.urlopen(f"http://127.0.0.1:{demo_port}/api/health", timeout=1.0)
+            if resp.status == 200:
+                print(f"[*] UMLRev server is already actively running on http://127.0.0.1:{demo_port}")
+                url = f"http://127.0.0.1:{demo_port}"
+                print(f"[*] Opening browser to existing instance: {url}")
+                webbrowser.open(url)
+                return
+        except Exception:
+            pass
+
+        # If occupied by foreign process, find next free port
+        for cand in [8001, 8080, 8088]:
+            if is_port_free(cand):
+                demo_port = cand
+                print(f"[*] Port {port} is occupied. Redirecting demo to free port {demo_port}.")
+                break
+
+    def open_browser_when_ready():
+        url = f"http://127.0.0.1:{demo_port}"
+        # Poll socket until backend is actively listening
+        for _ in range(40):
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.settimeout(0.2)
+                if s.connect_ex(('127.0.0.1', demo_port)) == 0:
+                    s.close()
+                    break
+                s.close()
+            except Exception:
+                pass
+            time.sleep(0.2)
+
+        print(f"[*] Backend server ready! Opening browser: {url}")
+        webbrowser.open(url)
+
+    # Launch browser automatically in background once server is bound
+    threading.Thread(target=open_browser_when_ready, daemon=True).start()
+
+    print("=" * 72)
+    print("  AI-Assisted UMLRev: Live Production Demo")
+    print("  Developed by: Jay Gandhi (B124) & Aditya Rane (B129)")
+    print("  MPSTME, NMIMS University - Semester 5 Software Engineering")
+    print("=" * 72)
+    print(f"[*] Unified React Dashboard & REST API running on: http://127.0.0.1:{demo_port}")
+    print(f"[*] Interactive Swagger API Documentation:       http://127.0.0.1:{demo_port}/docs")
+    print("=" * 72)
+    print("[*] Press Ctrl+C to terminate demo server.")
+
+    uvicorn.run("backend.umlrev.api.app:app", host="127.0.0.1", port=demo_port, reload=False, app_dir=CUR_DIR)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AI-Assisted UMLRev Launcher")
-    parser.add_argument("mode", choices=["cli", "backend", "frontend", "benchmark"], help="Operation mode")
+    parser.add_argument("mode", choices=["cli", "backend", "frontend", "benchmark", "demo"], help="Operation mode")
     parser.add_argument("--repo", default="examples/tell_story", help="Target repository path")
     parser.add_argument("--output", default="output", help="Output directory")
     args = parser.parse_args()
@@ -64,3 +139,5 @@ if __name__ == "__main__":
         run_backend()
     elif args.mode == "frontend":
         run_frontend()
+    elif args.mode == "demo":
+        run_demo()

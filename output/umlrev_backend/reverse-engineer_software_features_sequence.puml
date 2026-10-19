@@ -1,0 +1,60 @@
+@startuml
+title Feature: Reverse-Engineer Software Features - Sequence Diagram
+autonumber
+participant SequenceDiagramStrategy
+participant SymbolExtractor
+participant UpdateFeatureRequest
+participant GitHubIngestRequest
+participant EvaluateRequest
+participant TestSymbolExtractor
+participant DiagramStrategy
+participant MethodSymbol
+participant ClassDiagramStrategy
+participant ClassSymbol
+participant FeatureLabeller
+participant ClusterEngine
+SequenceDiagramStrategy -> SymbolExtractor: __init__()
+activate SymbolExtractor
+SymbolExtractor --> SequenceDiagramStrategy: return
+deactivate SymbolExtractor
+SymbolExtractor -> UpdateFeatureRequest: execute()
+activate UpdateFeatureRequest
+UpdateFeatureRequest --> SymbolExtractor: return
+deactivate UpdateFeatureRequest
+UpdateFeatureRequest -> GitHubIngestRequest: execute()
+activate GitHubIngestRequest
+GitHubIngestRequest --> UpdateFeatureRequest: return
+deactivate GitHubIngestRequest
+GitHubIngestRequest -> EvaluateRequest: execute()
+activate EvaluateRequest
+EvaluateRequest --> GitHubIngestRequest: return
+deactivate EvaluateRequest
+EvaluateRequest -> TestSymbolExtractor: setUp()
+activate TestSymbolExtractor
+TestSymbolExtractor --> EvaluateRequest: return
+deactivate TestSymbolExtractor
+TestSymbolExtractor -> DiagramStrategy: generate()
+activate DiagramStrategy
+DiagramStrategy --> TestSymbolExtractor: return
+deactivate DiagramStrategy
+DiagramStrategy -> MethodSymbol: execute()
+activate MethodSymbol
+MethodSymbol --> DiagramStrategy: return
+deactivate MethodSymbol
+MethodSymbol -> ClassDiagramStrategy: generate()
+activate ClassDiagramStrategy
+ClassDiagramStrategy --> MethodSymbol: return
+deactivate ClassDiagramStrategy
+ClassDiagramStrategy -> ClassSymbol: get_imports()
+activate ClassSymbol
+ClassSymbol --> ClassDiagramStrategy: return
+deactivate ClassSymbol
+ClassSymbol -> FeatureLabeller: __init__()
+activate FeatureLabeller
+FeatureLabeller --> ClassSymbol: return
+deactivate FeatureLabeller
+FeatureLabeller -> ClusterEngine: __init__()
+activate ClusterEngine
+ClusterEngine --> FeatureLabeller: return
+deactivate ClusterEngine
+@enduml
