@@ -13,6 +13,27 @@ def sanitize_ident(name: str) -> str:
         cleaned = f"_{cleaned}"
     return cleaned or "Symbol"
 
+# Identifiers Mermaid's sequence grammar claims as keywords. A participant id that
+# collides with one of these is lexed as the keyword and the whole diagram fails to
+# parse, so such ids are prefixed while the displayed label keeps the original name.
+MERMAID_SEQ_RESERVED = {
+    "activate", "actor", "alt", "and", "autonumber", "box", "break", "create",
+    "critical", "deactivate", "destroy", "details", "else", "end", "link", "links",
+    "loop", "note", "opt", "par", "participant", "properties", "rect",
+    "sequencediagram", "title", "over",
+}
+
+# A feature cluster can hold enough classes that the cross-product of their call
+# sites yields a diagram no renderer survives (observed: 201k lines from one
+# 145-class cluster), so interactions are de-duplicated and both axes capped.
+MAX_SEQUENCE_PARTICIPANTS = 20
+MAX_SEQUENCE_MESSAGES = 60
+
+def sanitize_mermaid_actor(name: str) -> str:
+    """Returns a participant id that Mermaid will not mistake for a grammar keyword."""
+    ident = sanitize_ident(name)
+    return f"p_{ident}" if ident.lower() in MERMAID_SEQ_RESERVED else ident
+
 def sanitize_mermaid_type(type_name: str) -> str:
     """Converts complex types to valid Mermaid syntax (e.g. List<T> -> List~T~)."""
     if not type_name:
@@ -131,7 +152,7 @@ class ClassDiagramStrategy(DiagramStrategy):
             m_lines.append("    classDef modified fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#fff;")
             for m_cls in mods:
                 if m_cls in feature_classes:
-                    m_lines.append(f"    class {sanitize_ident(m_cls)} modified;")
+                    m_lines.append(f'    cssClass "{sanitize_ident(m_cls)}" modified')
 
         mermaid_text = "\n".join(m_lines)
 
@@ -191,13 +212,40 @@ class SequenceDiagramStrategy(DiagramStrategy):
                 "caller_method": "init"
             })
 
+        # Collapse repeated call sites: the same sender/receiver/method pair adds no
+        # behavioural information, and that repetition is what drives the blow-up.
+        seen = set()
+        unique_messages = []
+        for msg in messages:
+            key = (msg["sender"], msg["receiver"], msg["method"])
+            if key not in seen:
+                seen.add(key)
+                unique_messages.append(msg)
+
+        truncated = len(unique_messages) > MAX_SEQUENCE_MESSAGES
+        messages = unique_messages[:MAX_SEQUENCE_MESSAGES]
+
+        # Draw lifelines only for classes the retained messages actually involve.
+        participants = []
+        for msg in messages:
+            for role in (msg["sender"], msg["receiver"]):
+                if role not in participants:
+                    participants.append(role)
+        if not participants:
+            participants = list(feature.class_names)
+        if len(participants) > MAX_SEQUENCE_PARTICIPANTS:
+            participants = participants[:MAX_SEQUENCE_PARTICIPANTS]
+            truncated = True
+        kept = set(participants)
+        messages = [m for m in messages if m["sender"] in kept and m["receiver"] in kept]
+
         # 1. Generate PlantUML Sequence Diagram
         p_lines = [
             f"@startuml",
             f"title Feature: {feature.name} - Sequence Diagram",
             f"autonumber"
         ]
-        for c in feature.class_names:
+        for c in participants:
             c_id = sanitize_ident(c)
             color_tag = " #E8F5E9" if c in mods else ""
             if c_id != c:
@@ -220,13 +268,15 @@ class SequenceDiagramStrategy(DiagramStrategy):
                 p_lines.append(f"{r_id} --> {s_id}: return")
                 p_lines.append(f"deactivate {r_id}")
 
+        if truncated and participants:
+            p_lines.append(f"note over {sanitize_ident(participants[0])}: View truncated to the {len(messages)} most representative interactions")
         p_lines.append("@enduml")
         plantuml_text = "\n".join(p_lines)
 
         # 2. Generate Mermaid Sequence Diagram
         m_lines = ["sequenceDiagram", f"    %% Feature: {feature.name}"]
-        for c in feature.class_names:
-            c_id = sanitize_ident(c)
+        for c in participants:
+            c_id = sanitize_mermaid_actor(c)
             m_lines.append(f'    participant {c_id} as "{c}"')
 
         if not messages:
@@ -236,10 +286,12 @@ class SequenceDiagramStrategy(DiagramStrategy):
             m_lines.append("    System-->>-System: result")
         else:
             for msg in messages:
-                s_id = sanitize_ident(msg['sender'])
-                r_id = sanitize_ident(msg['receiver'])
+                s_id = sanitize_mermaid_actor(msg['sender'])
+                r_id = sanitize_mermaid_actor(msg['receiver'])
                 m_lines.append(f"    {s_id}->>+{r_id}: {msg['method']}()")
                 m_lines.append(f"    {r_id}-->>-{s_id}: result")
+        if truncated:
+            m_lines.append(f"    %% View truncated to the {len(messages)} most representative interactions")
 
         mermaid_text = "\n".join(m_lines)
 

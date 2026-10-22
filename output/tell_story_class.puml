@@ -3,17 +3,22 @@ title Feature: Tell Story - Class Diagram
 skinparam classAttributeIconSize 0
 skinparam roundcorner 5
 skinparam packageStyle rectangle
-class Princess {
+class Enemy {
   - name: String
-  - isCaptured: boolean
-  + setCaptured(boolean captured): void
-  + release(): void
-  + getName(): String
+  + capture(Princess_princess): void
+  + guard(Princess_princess): void
 }
 class Hero {
   - name: String
-  + save(Princess princess): void
-  + fight(Enemy enemy): void
+  + save(Princess_princess): void
+  + fight(Enemy_enemy): void
+}
+class Princess {
+  - name: String
+  - isCaptured: boolean
+  + setCaptured(boolean_captured): void
+  + release(): void
+  + getName(): String
 }
 class Story {
   - hero: Hero
@@ -22,22 +27,11 @@ class Story {
   + start(): void
   + tell(): void
 }
-class Enemy {
-  - name: String
-  + capture(Princess princess): void
-  + guard(Princess princess): void
-}
 Enemy ..> Princess : capture
-Enemy ..> Princess : guard
 Hero ..> Princess : save
-Hero ..> Princess : fight
 Story --> Hero : hero
 Story --> Enemy : enemy
 Story --> Princess : princess
 Story ..> Enemy : start
 Story ..> Hero : start
-Story ..> Hero : start
-Story ..> Enemy : tell
-Story ..> Hero : tell
-Story ..> Hero : tell
 @enduml

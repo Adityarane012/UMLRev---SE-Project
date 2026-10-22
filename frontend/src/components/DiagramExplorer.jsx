@@ -12,6 +12,7 @@ export default function DiagramExplorer({
   setZoomLevel,
   diagramRef,
   currentDiag,
+  diagramStatus,
   onCopy,
   onGoToDiff,
   onGoToEval
@@ -121,6 +122,35 @@ export default function DiagramExplorer({
             PlantUML Code
           </button>
         </div>
+
+        {/* Syntax verdict for the generated Diagram-as-Code */}
+        {diagramStatus && (
+          <div
+            title={diagramStatus.message}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.35rem 0.7rem',
+              borderRadius: '20px',
+              fontSize: '0.74rem',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              color: diagramStatus.ok ? '#6ee7b7' : '#fca5a5',
+              background: diagramStatus.ok ? 'rgba(6, 78, 59, 0.45)' : 'rgba(127, 29, 29, 0.45)',
+              border: `1px solid ${diagramStatus.ok ? '#10b981' : '#ef4444'}`
+            }}
+          >
+            <span>{diagramStatus.ok ? '✓' : '✕'}</span>
+            <span>
+              {diagramStatus.failed
+                ? 'Mermaid parse failed'
+                : diagramStatus.ok
+                ? `Syntax verified · ${diagramStatus.mermaidLines} mmd / ${diagramStatus.pumlLines} puml lines`
+                : 'PlantUML looks unbalanced'}
+            </span>
+          </div>
+        )}
 
         {/* Action Buttons: Copy & Export */}
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>

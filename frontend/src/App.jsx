@@ -29,6 +29,8 @@ export default function App() {
   const [selectedDiagramKind, setSelectedDiagramKind] = useState('CLASS'); // CLASS or SEQUENCE
   const [zoomLevel, setZoomLevel] = useState(1);
   const [copyFeedback, setCopyFeedback] = useState('');
+  // Result of parsing the current diagram, so the UI can vouch for the generated code.
+  const [diagramStatus, setDiagramStatus] = useState(null);
   const [codeTab, setCodeTab] = useState('visual'); // 'visual', 'mermaid', 'plantuml'
   const [evalResults, setEvalResults] = useState(null);
   const [isApproved, setIsApproved] = useState(false);
@@ -222,15 +224,59 @@ export default function App() {
       mermaid
         .render(renderId, currentDiagram.svg_content)
         .then(({ svg }) => {
+          const puml = currentDiagram.uml_text || '';
+          const pumlOk =
+            puml.includes('@startuml') &&
+            puml.includes('@enduml') &&
+            (puml.match(/{/g) || []).length === (puml.match(/}/g) || []).length;
+          setDiagramStatus({
+            ok: pumlOk,
+            mermaidLines: currentDiagram.svg_content.split('\n').length,
+            pumlLines: puml.split('\n').length,
+            message: pumlOk
+              ? 'Mermaid parsed and rendered; PlantUML blocks balanced'
+              : 'Mermaid parsed, but PlantUML markers/braces look unbalanced'
+          });
           if (diagramRef.current) {
             diagramRef.current.innerHTML = svg;
           }
         })
         .catch((err) => {
           console.warn('Mermaid render error:', err);
-          if (diagramRef.current) {
-            diagramRef.current.innerHTML = `<pre style="color:#ef4444; padding:1rem; background:#0f172a; border-radius:8px;">Mermaid Syntax Fallback:\n${currentDiagram.svg_content}</pre>`;
-          }
+          if (!diagramRef.current) return;
+
+          // Surface the parser's own message and point at the offending source line,
+          // so a failed render is diagnosable instead of just a wall of red code.
+          const message = String((err && err.message) || err);
+          const lineNo = Number(message.match(/line[: ]+(\d+)/i)?.[1]);
+          const srcLines = currentDiagram.svg_content.split('\n');
+          setDiagramStatus({ ok: false, failed: true, message: message.split('\n')[0] });
+          const escape = (t) =>
+            String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+          const numbered = srcLines
+            .map((line, i) => {
+              const n = i + 1;
+              const body = `${String(n).padStart(4, ' ')} | ${escape(line)}`;
+              return n === lineNo
+                ? `<span style="background:#7f1d1d; color:#fecaca; display:block;">${body}  &lt;&lt;&lt; here</span>`
+                : body;
+            })
+            .join('\n');
+
+          diagramRef.current.innerHTML = `
+            <div style="padding:1rem; background:#0f172a; border:1px solid #ef4444; border-radius:8px;">
+              <div style="color:#fca5a5; font-weight:700; margin-bottom:0.5rem;">
+                Mermaid could not render this diagram
+              </div>
+              <pre style="color:#fecaca; white-space:pre-wrap; margin:0 0 0.85rem 0;">${escape(message)}</pre>
+              <details>
+                <summary style="color:#94a3b8; cursor:pointer; margin-bottom:0.5rem;">
+                  Show generated Mermaid source (${srcLines.length} lines)
+                </summary>
+                <pre style="color:#cbd5e1; margin:0; overflow:auto; max-height:420px;">${numbered}</pre>
+              </details>
+            </div>`;
         });
     }
   }, [projectData, selectedFeatureIdx, selectedDiagramKind, activeTab, codeTab]);
@@ -359,6 +405,7 @@ export default function App() {
             setZoomLevel={setZoomLevel}
             diagramRef={diagramRef}
             currentDiag={currentDiag}
+            diagramStatus={diagramStatus}
             onCopy={handleCopy}
             onGoToDiff={() => setActiveTab('diff')}
             onGoToEval={() => {

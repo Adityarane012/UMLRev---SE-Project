@@ -2,12 +2,12 @@
 title Feature: Tell Story - Sequence Diagram
 autonumber
 participant Enemy
-participant Hero
 participant Princess
+participant Hero
 participant Story
-Hero -> Princess: release()
+Enemy -> Princess: setCaptured()
 activate Princess
-Princess --> Hero: return
+Princess --> Enemy: return
 deactivate Princess
 Hero -> Princess: release()
 activate Princess
@@ -25,24 +25,4 @@ Story -> Hero: save()
 activate Hero
 Hero --> Story: return
 deactivate Hero
-Story -> Enemy: capture()
-activate Enemy
-Enemy --> Story: return
-deactivate Enemy
-Story -> Hero: fight()
-activate Hero
-Hero --> Story: return
-deactivate Hero
-Story -> Hero: save()
-activate Hero
-Hero --> Story: return
-deactivate Hero
-Enemy -> Princess: setCaptured()
-activate Princess
-Princess --> Enemy: return
-deactivate Princess
-Enemy -> Princess: setCaptured()
-activate Princess
-Princess --> Enemy: return
-deactivate Princess
 @enduml
