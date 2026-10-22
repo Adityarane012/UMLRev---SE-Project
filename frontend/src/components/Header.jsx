@@ -93,11 +93,8 @@ export default function Header({
             }}
           />
           <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: '1.2' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#f1f5f9' }}>
-              {currentUser?.name || 'Aditya Rane (B129)'}
-            </span>
-            <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-              {currentUser?.role || 'Software Developer'}
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
+              {currentUser?.name || 'Aditya Rane'}
             </span>
           </div>
         </div>

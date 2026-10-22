@@ -36,9 +36,8 @@ export default function App() {
   // User Authentication State (TC-01)
   const [currentUser, setCurrentUser] = useState({
     username: 'aditya',
-    name: 'Aditya Rane (B129)',
-    role: 'Software Developer',
-    token: 'token-b129-session'
+    name: 'Aditya Rane',
+    token: 'token-session'
   });
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginUsername, setLoginUsername] = useState('aditya');
@@ -55,8 +54,7 @@ export default function App() {
           setCurrentUser((prev) => ({
             ...prev,
             username: data.username,
-            name: data.name,
-            role: data.role
+            name: data.name
           }));
         }
       })
@@ -265,12 +263,11 @@ export default function App() {
       const res = await api.login(loginUsername, loginPassword);
       setCurrentUser({
         username: res.username,
-        name: res.username === 'aditya' ? 'Aditya Rane (B129)' : res.username,
-        role: res.role || 'Software Developer',
+        name: res.username === 'aditya' ? 'Aditya Rane' : res.username,
         token: res.token
       });
       setShowLoginModal(false);
-      setStatusMsg(`Authenticated as ${res.username} (${res.role}). Dashboard unlocked.`);
+      setStatusMsg(`Authenticated as ${res.username}. Dashboard unlocked.`);
     } catch (err) {
       setLoginError(err.message || 'Login failed. Check credentials.');
     }
@@ -465,7 +462,7 @@ export default function App() {
                   }}
                   style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
                 >
-                  Quickfill (Aditya B129)
+                  Quickfill (Aditya)
                 </button>
                 <button
                   type="submit"

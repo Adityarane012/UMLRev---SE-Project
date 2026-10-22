@@ -148,8 +148,7 @@ def login(req: LoginRequest):
     if req.username:
         return {
             "token": f"token-{uuid.uuid4()}",
-            "username": req.username,
-            "role": "Software Developer"
+            "username": req.username
         }
     raise HTTPException(status_code=400, detail="Invalid username")
 
@@ -157,9 +156,8 @@ def login(req: LoginRequest):
 def get_current_user():
     return {
         "username": "aditya",
-        "name": "Aditya Rane (B129)",
-        "role": "Software Developer",
-        "team": ["Jay Gandhi (B124)", "Aditya Rane (B129)"],
+        "name": "Aditya Rane",
+        "team": ["Jay Gandhi", "Aditya Rane"],
         "authenticated": True
     }
 

@@ -49,7 +49,7 @@ class TestBackendAPI(unittest.TestCase):
     # =========================================================================
     def test_tc01_login_and_dashboard_access(self):
         """
-        TC-01: Verifies user authentication, token issuance, role assignment,
+        TC-01: Verifies user authentication, token issuance,
         and developer dashboard profile access.
         """
         # Step 1 & 2: Submit valid user credentials
@@ -62,15 +62,15 @@ class TestBackendAPI(unittest.TestCase):
         self.assertIn("token", login_data)
         self.assertTrue(login_data["token"].startswith("token-"))
         self.assertEqual(login_data.get("username"), "aditya")
-        self.assertEqual(login_data.get("role"), "Software Developer")
+        self.assertNotIn("role", login_data)
 
         # Step 3: Verify dashboard identity profile
         profile_res = self.client.get("/api/auth/me")
         self.assertEqual(profile_res.status_code, 200)
         profile_data = profile_res.json()
         self.assertTrue(profile_data.get("authenticated"))
-        self.assertEqual(profile_data.get("role"), "Software Developer")
-        self.assertIn("Aditya Rane (B129)", profile_data.get("name", ""))
+        self.assertNotIn("role", profile_data)
+        self.assertEqual(profile_data.get("name"), "Aditya Rane")
 
     # =========================================================================
     # TC-02: Repository validation
