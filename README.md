@@ -1,10 +1,10 @@
-# AI-Assisted UMLRev
+# UMLRev
 
-Continuous reverse engineering of UML models with automated AI feature identification.
+Continuous reverse engineering of UML models with automated feature identification.
 
 Developed by **Jay Gandhi (B124)** and **Aditya Rane (B129)** for the Software Engineering (SE) Semester 5 curriculum at MPSTME, NMIMS University.
 
-The project contains the reverse engineering engine, AI clustering pipeline, React web dashboard, benchmark test suites, and academic documentation.
+The project contains the reverse engineering engine, semantic clustering pipeline, React web dashboard, benchmark test suites, and academic documentation.
 
 ---
 
@@ -59,9 +59,9 @@ The `docs/` directory documents the project specifications and curriculum requir
 
 | Document | Purpose and Contents |
 |---|---|
-| **[docs/01_project_overview.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/01_project_overview.md)** | **Project Overview:** Student details (B124/B129), documentation drift, and how AI feature clustering removes the manual tagging bottleneck in UMLRev. |
+| **[docs/01_project_overview.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/01_project_overview.md)** | **Project Overview:** Student details (B124/B129), documentation drift, and how automated feature clustering removes the manual tagging bottleneck in UMLRev. |
 | **[docs/02_base_paper_summary.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/02_base_paper_summary.md)** | **Base Research Paper Analysis:** Breakdown of *UMLRev (IEEE Access 2026)*, covering FOSD principles, AspectJ tracing, component architecture, and the manual annotation gap. |
-| **[docs/03_system_architecture_and_ai_pipeline.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/03_system_architecture_and_ai_pipeline.md)** | **System Architecture and AI Pipeline:** Structural design of the four backend packages, AST symbol extraction, semantic clustering, and diagram strategies. |
+| **[docs/03_system_architecture_and_ai_pipeline.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/03_system_architecture_and_ai_pipeline.md)** | **System Architecture and Analysis Pipeline:** Structural design of the four backend packages, AST symbol extraction, semantic clustering, and diagram strategies. |
 | **[docs/04_uml_and_dfd_models.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/04_uml_and_dfd_models.md)** | **Visual Models:** PlantUML and Mermaid specifications for Use Case, Activity, Class, Sequence, Collaboration, and Data Flow Diagrams. |
 | **[docs/05_se_lab_experiments_traceability.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/05_se_lab_experiments_traceability.md)** | **Lab Experiments and Traceability:** Traceability matrix linking User Stories, NFRs, Use Cases, Activities, Classes, Sequence Diagrams, and DFDs across Experiments 1 to 8. |
 

@@ -17,7 +17,7 @@ export default function DiffTab({
         Stage 2: Git Diff & Change Analysis
       </h2>
       <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-        Select a commit or recent change. The AI engine will pinpoint affected classes and generate diff-highlighted UML diagrams.
+        Select a commit or recent change. The analysis engine will pinpoint affected classes and generate diff-highlighted UML diagrams.
       </p>
 
       {(!projectData.recent_commits || projectData.recent_commits.length === 0) && (

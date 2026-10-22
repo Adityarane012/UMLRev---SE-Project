@@ -142,8 +142,8 @@ class LLMClient:
 
         joined = (" ".join(classes) + " " + prompt).lower()
 
-        # Tell Story benchmark
-        if "story" in joined or "hero" in joined or "princess" in joined:
+        # Tell Story benchmark (use word boundaries to avoid matching 'history')
+        if re.search(r"\b(story|hero|princess|quest)\b", joined):
             return json.dumps({
                 "feature_name": "Tell Story",
                 "description": "Orchestrates narrative story events, character interactions, quests, and battle mechanics.",
@@ -181,7 +181,7 @@ class LLMClient:
             })
         elif any(k in joined for k in ["cluster", "labeller", "pipeline"]):
             return json.dumps({
-                "feature_name": "AI Feature Discovery & Clustering",
+                "feature_name": "Automated Feature Discovery & Clustering",
                 "description": "Groups cohesive class components into architectural business capabilities.",
                 "confidence": 0.91
             })

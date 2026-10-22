@@ -9,7 +9,7 @@ export default function EvalTab({ evalResults, onRunEvaluation, onGoToExplorer }
             Stage 5: Empirical Accuracy & Quality Benchmarks
           </h2>
           <p style={{ color: 'var(--text-muted)' }}>
-            Evaluates AI-identified feature clusters against the ground truth documented in the IEEE paper.
+            Evaluates identified feature clusters against the ground truth documented in the IEEE paper.
           </p>
         </div>
         <button

@@ -1,5 +1,5 @@
 """
-Runner utility for AI-Assisted UMLRev
+Runner utility for UMLRev
 Allows running CLI analysis, launching backend/frontend, or launching the unified live demo.
 """
 
@@ -45,7 +45,8 @@ def run_cli(repo_path, output_path="output"):
 def run_backend(port=8000):
     import uvicorn
     print(f"[*] Starting FastAPI backend on http://127.0.0.1:{port}...")
-    uvicorn.run("backend.umlrev.api.app:app", host="127.0.0.1", port=port, reload=True, app_dir=CUR_DIR)
+    reload_dirs = [os.path.join(CUR_DIR, "backend", "umlrev")]
+    uvicorn.run("backend.umlrev.api.app:app", host="127.0.0.1", port=port, reload=True, reload_dirs=reload_dirs, app_dir=CUR_DIR)
 
 def run_frontend():
     frontend_dir = os.path.join(CUR_DIR, "frontend")
@@ -113,7 +114,7 @@ def run_demo(port=8000):
     threading.Thread(target=open_browser_when_ready, daemon=True).start()
 
     print("=" * 72)
-    print("  AI-Assisted UMLRev: Live Production Demo")
+    print("  UMLRev: Live Production Demo")
     print("  Developed by: Jay Gandhi (B124) & Aditya Rane (B129)")
     print("  MPSTME, NMIMS University - Semester 5 Software Engineering")
     print("=" * 72)
@@ -125,7 +126,7 @@ def run_demo(port=8000):
     uvicorn.run("backend.umlrev.api.app:app", host="127.0.0.1", port=demo_port, reload=False, app_dir=CUR_DIR)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="AI-Assisted UMLRev Launcher")
+    parser = argparse.ArgumentParser(description="UMLRev Launcher")
     parser.add_argument("mode", choices=["cli", "backend", "frontend", "benchmark", "demo"], help="Operation mode")
     parser.add_argument("--repo", default="examples/tell_story", help="Target repository path")
     parser.add_argument("--output", default="output", help="Output directory")

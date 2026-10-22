@@ -1,5 +1,5 @@
 """
-AI-Assisted UMLRev: Continuous Reverse Engineering with AI Feature Identification
+UMLRev: Continuous Reverse Engineering with Automated Feature Identification
 Developed by Jay Gandhi (B124) and Aditya Rane (B129)
 """
 

@@ -8,7 +8,7 @@ from .pipeline.labeller import FeatureLabeller
 from .diagram.engine import DiagramEngine
 
 def main():
-    parser = argparse.ArgumentParser(description="AI-Assisted UMLRev: Reverse Engineering CLI")
+    parser = argparse.ArgumentParser(description="UMLRev: Continuous Reverse Engineering CLI")
     parser.add_argument("--repo", type=str, required=True, help="Path to repository source folder")
     parser.add_argument("--output", type=str, default="output", help="Output directory for UML diagrams")
     parser.add_argument("--project-name", type=str, default="UMLRevProject", help="Project name")
@@ -19,7 +19,7 @@ def main():
     os.makedirs(out_path, exist_ok=True)
 
     print("=" * 70)
-    print("  AI-Assisted UMLRev: Continuous Reverse Engineering Engine")
+    print("  UMLRev: Continuous Reverse Engineering Engine")
     print("  Authors: Jay Gandhi (B124) & Aditya Rane (B129)")
     print("=" * 70)
     print(f"[*] Scanning Repository: {repo_path}")

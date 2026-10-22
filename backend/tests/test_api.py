@@ -18,7 +18,7 @@ from backend.umlrev.pipeline.llm_client import LLMClient
 class TestBackendAPI(unittest.TestCase):
     """
     Formal Test Suite executing Experiment 9 Test Cases (TC-01 to TC-04)
-    for the AI-Assisted UMLRev system.
+    for the UMLRev system.
     """
 
     def setUp(self):

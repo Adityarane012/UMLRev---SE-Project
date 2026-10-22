@@ -39,7 +39,7 @@ export default function Header({
           onClick={() => setActiveTab('features')}
           disabled={!hasProjectData}
         >
-          <span>2. AI Feature Discovery</span>
+          <span>2. Feature Discovery</span>
         </button>
         <button
           className={`tab-btn ${activeTab === 'diff' ? 'active' : ''}`}

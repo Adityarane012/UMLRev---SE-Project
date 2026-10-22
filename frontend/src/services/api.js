@@ -1,5 +1,5 @@
 /**
- * REST API client for AI-Assisted UMLRev backend.
+ * REST API client for UMLRev backend.
  */
 
 const API_BASE = '';

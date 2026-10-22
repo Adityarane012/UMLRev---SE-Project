@@ -73,7 +73,7 @@ export default function FeaturesTab({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>AI Feature Review & Approval (TC-03)</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Feature Review & Approval (TC-03)</h2>
             {isApproved && (
               <span
                 style={{
@@ -91,7 +91,7 @@ export default function FeaturesTab({
             )}
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Review AI-suggested feature clusters, modify naming and class scopes, and approve the architecture before generating UML.
+            Review discovered feature clusters, modify naming and class scopes, and approve the architecture before generating UML.
           </p>
         </div>
 

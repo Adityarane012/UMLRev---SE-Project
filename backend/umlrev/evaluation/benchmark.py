@@ -4,7 +4,7 @@ from ..model.feature import Feature
 
 class EvaluationService:
     """
-    Evaluates AI-identified features against Ground Truth to calculate
+    Evaluates identified features against Ground Truth to calculate
     Precision, Recall, and F1-Score (F-measure).
     """
 
