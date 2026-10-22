@@ -358,13 +358,10 @@ export default function App() {
             setGithubUrl={setGithubUrl}
             loading={loading}
             onIngestGitHub={handleIngestGitHub}
-            onLoadBenchmark={handleLoadBenchmark}
-            onAnalyzeLocal={handleAnalyzeLocal}
-            onUploadZip={handleUploadZip}
           />
         )}
 
-        {/* Tab 2: AI Features */}
+        {/* Tab 2: Feature Discovery */}
         {activeTab === 'features' && (
           <FeaturesTab
             projectData={projectData}
