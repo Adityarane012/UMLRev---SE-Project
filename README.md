@@ -13,8 +13,9 @@ The project contains the reverse engineering engine, semantic clustering pipelin
 ```
 UMLRev/
 ├── README.md                      # Project documentation and usage guide
-├── run_system.py                  # System launcher (cli, backend, frontend, benchmark)
+├── run_system.py                  # System launcher (demo, cli, backend, frontend, benchmark)
 ├── docs/                          # SE documentation suite (Exp 1 - 8 and IEEE paper analysis)
+│   ├── B124_B129_UMLRev_MiniProject_Report.docx  # Mini project report (submission deliverable)
 │   ├── B124_B129_SEProject.pdf    # Official project report
 │   ├── 01_project_overview.md
 │   ├── 02_base_paper_summary.md
@@ -63,41 +64,49 @@ The `docs/` directory documents the project specifications and curriculum requir
 | **[docs/02_base_paper_summary.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/02_base_paper_summary.md)** | **Base Research Paper Analysis:** Breakdown of *UMLRev (IEEE Access 2026)*, covering FOSD principles, AspectJ tracing, component architecture, and the manual annotation gap. |
 | **[docs/03_system_architecture_and_ai_pipeline.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/03_system_architecture_and_ai_pipeline.md)** | **System Architecture and Analysis Pipeline:** Structural design of the four backend packages, AST symbol extraction, semantic clustering, and diagram strategies. |
 | **[docs/04_uml_and_dfd_models.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/04_uml_and_dfd_models.md)** | **Visual Models:** PlantUML and Mermaid specifications for Use Case, Activity, Class, Sequence, Collaboration, and Data Flow Diagrams. |
+| **[docs/B124_B129_UMLRev_MiniProject_Report.docx](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/B124_B129_UMLRev_MiniProject_Report.docx)** | **Mini Project Report (submission deliverable):** Introduction and authors, problem statement with objectives O1-O7 and scope, architecture and design diagrams, measured results with screenshots, conclusion and references. |
 | **[docs/05_se_lab_experiments_traceability.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/05_se_lab_experiments_traceability.md)** | **Lab Experiments and Traceability:** Traceability matrix linking User Stories, NFRs, Use Cases, Activities, Classes, Sequence Diagrams, and DFDs across Experiments 1 to 8. |
 
 ---
 
 ## Running the System
 
-Use `run_system.py` to run the CLI, start the servers, or execute benchmarks:
+Use `run_system.py` to launch the dashboard, run the CLI, or execute benchmarks:
 
-### 1. Run Automated CLI Benchmark
+### 1. Launch the Full Demo (recommended)
+Builds the frontend if needed, serves the dashboard and REST API together on one port, and opens a browser:
+```powershell
+python run_system.py demo
+```
+The dashboard ingests **public GitHub repositories**; the CLI below covers local directories.
+
+### 2. Run Automated CLI Benchmark
 Executes the reverse engineering pipeline on the IEEE "Tell Story" benchmark and exports PlantUML diagrams into `output/`:
 ```powershell
 python run_system.py benchmark
 ```
 
-### 2. Launch FastAPI REST Backend
+### 3. Launch FastAPI REST Backend
 Starts the FastAPI server on `http://127.0.0.1:8000`:
 ```powershell
 python run_system.py backend
 ```
 Interactive Swagger documentation is available at: `http://127.0.0.1:8000/docs`
 
-### 3. Launch Interactive Web Dashboard
+### 4. Launch Frontend Dev Server (hot reload)
 Starts the Vite development server:
 ```powershell
 python run_system.py frontend
 ```
 Open `http://127.0.0.1:5173` in your browser.
 
-### 4. Custom Repository Analysis (CLI)
+### 5. Custom Repository Analysis (CLI)
 Reverse engineer any local repository:
 ```powershell
 python run_system.py cli --repo "path/to/source_code" --output "output/my_project"
 ```
 
-### 5. Run Automated Tests
+### 6. Run Automated Tests
 Executes the backend unit and integration test suite:
 ```powershell
 python -m unittest discover -s backend/tests -p "test_*.py"
@@ -107,10 +116,32 @@ python -m unittest discover -s backend/tests -p "test_*.py"
 
 ## Verification and Quality Metrics
 
-Results on the IEEE Access benchmark project:
-- **Discovered Classes:** 4 (`Enemy`, `Hero`, `Princess`, `Story`)
-- **Discovered Relationships:** 13 (Field associations, method calls, dependencies)
-- **AI Feature Identified:** "Tell Story" (Confidence: 95.0%)
-- **Precision:** 100.0%
-- **Recall:** 100.0%
-- **F1 Score:** 1.00
+### Accuracy on the IEEE Access "Tell Story" benchmark
+The pipeline is given the source directory only, with no feature information of any kind.
+
+| Measure | Result |
+|---|---|
+| Source files parsed | 4 |
+| Discovered classes | 4 (`Enemy`, `Hero`, `Princess`, `Story`) |
+| Discovered relationships | 7 (field associations, method calls, dependencies) |
+| Clusters formed | 1 |
+| Feature identified | "Tell Story" (confidence 96.0%) |
+| True positives / false positives / false negatives | 4 / 0 / 0 |
+| **Precision / Recall / F1** | **100.0% / 100.0% / 1.00** |
+
+Scoring operates on individual feature-to-class assignments, so a partially correct cluster is
+partially credited. F1 is the headline figure because precision and recall are each trivially
+gamed in isolation.
+
+### Scale
+| Repository | Scale | Outcome |
+|---|---|---|
+| UMLRev itself | 250 files, 229 classes, 550 relationships | 8 features, 16 diagrams, ~14 s |
+| `pallets/click` | 174 classes | 8 features, all diagrams rendered |
+
+### Test and output validation
+- **12/12** unit and integration tests pass, including TC-01 to TC-04 from Experiment 9.
+- **32/32** generated diagrams parse cleanly against the Mermaid parser (16 from initial
+  analysis, 16 regenerated with commit-diff highlighting). Stage 4 of the dashboard reports
+  this verdict per diagram, and shows the parser's own error plus the offending source line
+  when a diagram fails.

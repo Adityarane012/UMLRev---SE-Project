@@ -1,4 +1,4 @@
-# AI-Assisted Feature Identification for Continuous Reverse Engineering of UML Models
+# Automated Feature Identification for Continuous Reverse Engineering of UML Models
 ## Project Overview & Academic Context
 
 ---
@@ -22,7 +22,7 @@ To counter software design drift, recent research proposed **UMLRev** (*A Contex
 However, **UMLRev has a fundamental limitation**:
 > **The Manual Feature Identification Bottleneck:** UMLRev requires software developers to manually define features and explicitly bind them to execution traces/test scenarios prior to reverse engineering. For legacy systems or large-scale projects with hundreds of classes and dynamic execution flows, this manual mapping is tedious, error-prone, and severely limits automated continuous reverse engineering.
 
-This project, developed by **Jay (B124)** and **Aditya (B129)**, enhances the UMLRev paradigm by introducing **AI-Assisted Feature Identification**:
+This project, developed by **Jay (B124)** and **Aditya (B129)**, enhances the UMLRev paradigm by introducing **Automated Feature Identification**:
 1. **Automated Static & Semantic Analysis:** Parsing source code to extract structural symbols (`ClassSymbol`, imports, methods, relationships).
 2. **AI / LLM Clustering & Feature Labeling:** Grouping cohesive classes into feature clusters and using Large Language Models (LLMs) to automatically detect and name software features.
 3. **Human-in-the-Loop Verification:** Giving developers a web dashboard to review, approve, or adjust AI-suggested feature boundaries before final diagram generation.
@@ -50,7 +50,7 @@ This project, developed by **Jay (B124)** and **Aditya (B129)**, enhances the UM
 +----------------------------------------------------------------------------------------------------+
 |                         ADITYA & JAY'S ENHANCEMENT: AI-ASSISTED UMLRev                             |
 | - Symbol extraction (AST parsing) + Semantic clustering of source code.                            |
-| - Automated AI Feature Identification (LLM prompts predict feature clusters and labels).           |
+| - Automated feature identification (clustering, then LLM or heuristic labelling).                  |
 | - Interactive review dashboard for developer oversight.                                            |
 | - Synchronized, continuous, and automated UML generation across CI/CD releases.                    |
 +----------------------------------------------------------------------------------------------------+
@@ -59,15 +59,15 @@ This project, developed by **Jay (B124)** and **Aditya (B129)**, enhances the UM
 ---
 
 ### 4. Key Functional Capabilities
-1. **Multi-Source Ingestion:** Upload codebase as `.zip` archive or connect a remote Git repository (e.g., GitHub / GitLab).
+1. **Repository Ingestion:** Clone any public GitHub repository from the dashboard, or point the CLI at a local directory.
 2. **Automated Symbol Extraction:** Extract classes, methods, package scopes, and inheritance/dependency hierarchies.
-3. **AI Feature Mining & Clustering:** Group source files into functional clusters and infer high-level business feature names with confidence scores.
+3. **Feature Mining & Clustering:** Group source files into functional clusters and infer high-level business feature names with confidence scores.
 4. **Developer Review Loop:** Web dashboard allowing architects and developers to accept, split, or rename feature clusters.
 5. **Multi-Diagram Generation:** Automatically output:
    - **UML Class Diagrams** representing structural feature views.
    - **UML Sequence Diagrams** illustrating dynamic runtime interactions.
-   - **Diagram-as-Code:** PlantUML markup for version-controlled documentation.
-6. **CI/CD Integration:** Webhooks and automated pipeline stages triggering diagram regeneration on commits and pull requests.
+   - **Diagram-as-Code:** PlantUML and Mermaid markup for version-controlled documentation.
+6. **Commit Impact Analysis:** Reads commit history, determines which features a commit touches, and regenerates the affected diagrams with the modified classes highlighted. *(Webhook-triggered regeneration inside a hosted CI pipeline remains future work.)*
 
 ---
 

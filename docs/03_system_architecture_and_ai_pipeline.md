@@ -1,10 +1,10 @@
-# AI-Assisted System Architecture & Feature Identification Pipeline
+# System Architecture & Automated Feature Identification Pipeline
 ## Technical Design, Object Model, and AI Engine Specifications
 
 ---
 
 ### 1. Architectural Vision
-The primary innovation of the **AI-Assisted UMLRev** system (conceived by Jay Gandhi & Aditya Rane) is replacing the manual feature-tagging prerequisite with an automated **AI-Driven Static & Semantic Analysis Pipeline**. 
+The primary innovation of this **UMLRev** enhancement (conceived by Jay Gandhi & Aditya Rane) is replacing the manual feature-tagging prerequisite with an automated **static and semantic analysis pipeline**. 
 
 Rather than requiring a developer to hand-annotate hundreds of test scenarios or execution traces, the system:
 1. Performs static source-code symbol extraction (AST parsing).
@@ -122,7 +122,7 @@ The object-oriented design is cleanly structured into four decoupled packages:
 - **[`GroundTruth`](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/B124_B129_Exp5.pdf):** Contains expert-annotated architectural feature mappings for benchmark projects.
   - Attributes: `- repoName: String`
   - Methods: `+ classesFor(name: String): List<String>`
-- **[`EvaluationService`](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/B124_B129_Exp5.pdf):** Calculates Precision, Recall, and F1-Score of AI-identified features against Ground Truth.
+- **[`EvaluationService`](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/B124_B129_Exp5.pdf):** Calculates Precision, Recall, and F1-Score of automatically identified features against Ground Truth.
   - Methods: `+ evaluate(expected: GroundTruth, found: List<Feature>): EvaluationMetrics`
 
 ---
@@ -136,6 +136,28 @@ The object-oriented design is cleanly structured into four decoupled packages:
    Raw files pass sequentially through extraction -> clustering -> labeling -> human review -> generation. Each stage produces well-typed intermediate representations.
 4. **Adapter / Gateway Pattern (`LLMClient`):**
    Decouples the labeling engine from specific LLM vendors (OpenAI, Google Gemini, Anthropic, or local models like Ollama).
+
+---
+
+### 4a. Renderer Constraints Enforced by the Diagram Layer
+
+A generated diagram is only useful if it actually parses. `strategies.py` therefore enforces three
+constraints that were derived by validating every generated diagram against the Mermaid parser:
+
+1. **Styling directives.** Classes touched by a commit are highlighted with `cssClass`, the
+   `classDiagram` styling form. The flowchart form (`class X modified;`) is a lexical error inside a
+   class diagram and silently broke every diagram generated after a diff run.
+2. **Reserved identifiers.** Mermaid's sequence grammar claims 26 keywords that are also ordinary
+   class names (`actor`, `note`, `loop`, `end`, `box`, `link`, `title`, `participant`,
+   `sequenceDiagram`, and others). Colliding participant ids are prefixed via
+   `sanitize_mermaid_actor()` while the rendered label keeps the original class name.
+3. **Bounded output.** Sequence interactions are de-duplicated by `(sender, receiver, method)` and
+   capped at `MAX_SEQUENCE_PARTICIPANTS` lifelines and `MAX_SEQUENCE_MESSAGES` messages, with the
+   truncation noted in the diagram. Without this, the cross-product of call sites in a large cluster
+   produced a 201,651-line diagram that stalls the parser and freezes the browser.
+
+Stage 4 of the dashboard surfaces the resulting verdict per diagram, and on failure shows the
+parser's own message with the offending source line marked rather than dumping raw markup.
 
 ---
 
