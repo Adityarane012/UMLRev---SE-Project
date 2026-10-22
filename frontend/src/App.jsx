@@ -37,6 +37,8 @@ export default function App() {
   const [copyFeedback, setCopyFeedback] = useState('');
   // Result of parsing the current diagram, so the UI can vouch for the generated code.
   const [diagramStatus, setDiagramStatus] = useState(null);
+  // Whether the backend is actually answering, surfaced as the header's live dot.
+  const [backendOnline, setBackendOnline] = useState(null);
   const [codeTab, setCodeTab] = useState('visual'); // 'visual', 'mermaid', 'plantuml'
   const [evalResults, setEvalResults] = useState(null);
   const [isApproved, setIsApproved] = useState(false);
@@ -69,6 +71,22 @@ export default function App() {
       .catch(() => {
         // Fallback to local default session
       });
+  }, []);
+
+  // Poll backend reachability so the header dot reports something real.
+  useEffect(() => {
+    let cancelled = false;
+    const ping = () =>
+      api
+        .getHealth()
+        .then(() => !cancelled && setBackendOnline(true))
+        .catch(() => !cancelled && setBackendOnline(false));
+    ping();
+    const id = setInterval(ping, 15000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
   }, []);
 
   // 1. Ingest via GitHub URL (TC-02)
@@ -341,6 +359,11 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         hasProjectData={Boolean(projectData)}
+        projectData={projectData}
+        backendOnline={backendOnline}
+        isApproved={isApproved}
+        diffReport={diffReport}
+        evalResults={evalResults}
         onOpenEval={handleRunEvaluation}
         currentUser={currentUser}
         onOpenLoginModal={() => setShowLoginModal(true)}

@@ -4,100 +4,119 @@ export default function Header({
   activeTab,
   setActiveTab,
   hasProjectData,
+  projectData,
+  backendOnline,
+  isApproved,
+  diffReport,
+  evalResults,
   onOpenEval,
   currentUser,
   onOpenLoginModal
 }) {
+  // A stage counts as done only when the artefact it produces actually exists,
+  // so the stepper reports real progress rather than which tabs were visited.
+  const stages = [
+    { key: 'ingest', label: 'Ingest', done: Boolean(projectData), locked: false },
+    { key: 'features', label: 'Features', done: Boolean(isApproved), locked: !hasProjectData },
+    { key: 'diff', label: 'Git Diff', done: Boolean(diffReport), locked: !hasProjectData },
+    { key: 'explorer', label: 'Diagrams', done: Boolean(projectData?.diagrams?.length), locked: !hasProjectData },
+    { key: 'eval', label: 'Metrics', done: Boolean(evalResults), locked: !hasProjectData }
+  ];
+
+  const online = backendOnline !== false;
+  const statusLabel =
+    backendOnline === null ? 'Contacting backend…' : online ? 'Backend online' : 'Backend unreachable';
+
+  const featureCount = projectData?.features?.length;
+  const classCount = projectData?.classes_count;
+
   return (
     <header className="app-header">
       <div className="brand-section">
         <div className="brand-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-            <polyline points="2 17 12 22 22 17"></polyline>
-            <polyline points="2 12 12 17 22 12"></polyline>
+          {/* A class box with an inherited child: the thing this tool produces. */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="8" y="2" width="12" height="7" rx="1.2"></rect>
+            <line x1="8" y1="5.5" x2="20" y2="5.5"></line>
+            <rect x="3" y="15" width="11" height="7" rx="1.2"></rect>
+            <line x1="3" y1="18.5" x2="14" y2="18.5"></line>
+            <path d="M14 9v3H8.5v3"></path>
           </svg>
         </div>
-        <div>
-          <h1 className="brand-title">UMLRev</h1>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h1 className="brand-title">UMLRev</h1>
+            <span
+              title={statusLabel}
+              aria-label={statusLabel}
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                flexShrink: 0,
+                backgroundColor: backendOnline === null ? '#64748b' : online ? '#10b981' : '#ef4444',
+                boxShadow: online && backendOnline !== null ? '0 0 0 3px rgba(16, 185, 129, 0.15)' : 'none',
+                animation: backendOnline === null ? 'umlrev-pulse-dot 1.4s ease-in-out infinite' : 'none'
+              }}
+            />
+          </div>
+
+          {/* Before a repo is loaded this is a tagline; after, it is the context
+              worth reading — which repo, how big, how many features found. */}
           <div className="brand-subtitle">
-            <span>● Continuous Reverse Engineering & Diagram-as-Code</span>
+            {projectData ? (
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', whiteSpace: 'nowrap' }}>
+                <strong style={{ color: '#e2e8f0', fontWeight: 600 }}>{projectData.name}</strong>
+                {Number.isFinite(classCount) && (
+                  <>
+                    <span style={{ color: 'var(--border-subtle)' }}>·</span>
+                    <span>{classCount} classes</span>
+                  </>
+                )}
+                {Number.isFinite(featureCount) && (
+                  <>
+                    <span style={{ color: 'var(--border-subtle)' }}>·</span>
+                    <span>{featureCount} features</span>
+                  </>
+                )}
+              </span>
+            ) : (
+              <span style={{ whiteSpace: 'nowrap' }}>Continuous Reverse Engineering</span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <nav className="nav-tabs">
-        <button
-          className={`tab-btn ${activeTab === 'ingest' ? 'active' : ''}`}
-          onClick={() => setActiveTab('ingest')}
-        >
-          <span>1. Ingest Repo</span>
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'features' ? 'active' : ''}`}
-          onClick={() => setActiveTab('features')}
-          disabled={!hasProjectData}
-        >
-          <span>2. Feature Discovery</span>
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'diff' ? 'active' : ''}`}
-          onClick={() => setActiveTab('diff')}
-          disabled={!hasProjectData}
-        >
-          <span>3. Git Diff Analysis</span>
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'explorer' ? 'active' : ''}`}
-          onClick={() => setActiveTab('explorer')}
-          disabled={!hasProjectData}
-        >
-          <span>4. Diagram-as-Code</span>
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'eval' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('eval');
-            if (onOpenEval) onOpenEval();
-          }}
-          disabled={!hasProjectData}
-        >
-          <span>5. Metrics & Eval</span>
-        </button>
+      {/* Pipeline stepper */}
+      <nav className="stage-nav">
+        {stages.map((stage, i) => {
+          const current = activeTab === stage.key;
+          const cls = ['stage-btn', current ? 'current' : '', stage.done && !current ? 'done' : ''].filter(Boolean).join(' ');
+          return (
+            <button
+              key={stage.key}
+              className={cls}
+              disabled={stage.locked}
+              title={stage.locked ? 'Ingest a repository first' : stage.label}
+              onClick={() => {
+                setActiveTab(stage.key);
+                if (stage.key === 'eval' && onOpenEval) onOpenEval();
+              }}
+            >
+              <span className="stage-num">{stage.done ? '✓' : i + 1}</span>
+              <span className="stage-label">{stage.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       {/* User Auth Profile (TC-01) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginLeft: 'auto' }}>
-        <div
-          onClick={onOpenLoginModal}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.6rem',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: '20px',
-            padding: '0.35rem 0.85rem',
-            cursor: 'pointer',
-            transition: 'border-color 0.2s ease'
-          }}
-          title="Click to view authentication status or login"
-        >
-          <div
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: currentUser?.token ? '#10b981' : '#f59e0b'
-            }}
-          />
-          <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: '1.2' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
-              {currentUser?.name || 'Aditya Rane'}
-            </span>
-          </div>
-        </div>
+      <div
+        className="profile-chip"
+        onClick={onOpenLoginModal}
+        title="Click to view authentication status or login"
+      >
+        {currentUser?.name || 'Aditya Rane'}
       </div>
     </header>
   );

@@ -14,6 +14,12 @@ export async function login(username, password) {
   return res.json();
 }
 
+export async function getHealth() {
+  const res = await fetch(`${API_BASE}/api/health`);
+  if (!res.ok) throw new Error('Backend unreachable');
+  return res.json();
+}
+
 export async function getAuthMe() {
   const res = await fetch(`${API_BASE}/api/auth/me`);
   if (!res.ok) throw new Error('Failed to retrieve user profile');
