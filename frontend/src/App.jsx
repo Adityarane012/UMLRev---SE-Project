@@ -10,6 +10,12 @@ import DiagramExplorer from './components/DiagramExplorer';
 import EvalTab from './components/EvalTab';
 import * as api from './services/api';
 
+// The reference answer Stage 5 scores against: the feature-to-class mapping the
+// IEEE Access paper documents for its "Tell Story" benchmark project.
+const GROUND_TRUTH = {
+  'Tell Story': ['Enemy', 'Hero', 'Princess', 'Story']
+};
+
 mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
@@ -292,9 +298,7 @@ export default function App() {
   const handleRunEvaluation = async () => {
     if (!projectData) return;
     try {
-      const data = await api.evaluateProject(projectData.project_id, {
-        'Tell Story': ['Enemy', 'Hero', 'Princess', 'Story']
-      });
+      const data = await api.evaluateProject(projectData.project_id, GROUND_TRUTH);
       setEvalResults(data);
     } catch (e) {
       console.error(e);
@@ -416,6 +420,7 @@ export default function App() {
         {activeTab === 'eval' && (
           <EvalTab
             evalResults={evalResults}
+            groundTruth={GROUND_TRUTH}
             onRunEvaluation={handleRunEvaluation}
             onGoToExplorer={() => setActiveTab('explorer')}
           />
