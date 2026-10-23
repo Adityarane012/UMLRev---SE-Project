@@ -10,7 +10,7 @@
   - **Jay Gandhi** (Roll No. **B124**)
   - **Aditya Rane** (Roll No. **B129**)
 - **Academic Milestone:** Term Mini-Project / Lab Continuous Assessment (Experiments 1 to 8)
-- **Primary Source Document:** [B124_B129_SEProject.pdf](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/B124_B129_SEProject.pdf)
+- **Primary Source Document:** `B124_B129_SEProject.pdf` (held locally; not published in this repository)
 
 ---
 
@@ -74,7 +74,7 @@ This project, developed by **Jay (B124)** and **Aditya (B129)**, enhances the UM
 ### 5. Repository File Reference
 All project deliverables and reference artifacts are stored within the project:
 - **Base Research Paper:** [UMLRev Paper (IEEE Access 2026)](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/reference/UMLRev_A_Context-Aware_Feature-Oriented_Approach_to_Support_Continuous_Reverse_Engineering_of_UML_Models.pdf)
-- **Project Proposal Document:** [B124_B129_SEProject.pdf](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/B124_B129_SEProject.pdf)
+- **Project Proposal Document:** `B124_B129_SEProject.pdf` (held locally; not published in this repository)
 - **StarUML Activity Model:** [Activity Diagram UMLRev.mdj](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/diagrams/Activity%20Diagram%20UMLRev.mdj) and export [ActivityDiagram UMLRev.jpg](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/diagrams/ActivityDiagram%20UMLRev.jpg)
 - **Sequence Diagram Export:** [exp6 diagram.png](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/lab_reports/exp6%20diagram.png)
 - **Data Flow Diagrams:**

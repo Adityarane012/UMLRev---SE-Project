@@ -15,8 +15,6 @@ UMLRev/
 ├── README.md                      # Project documentation and usage guide
 ├── run_system.py                  # System launcher (demo, cli, backend, frontend, benchmark)
 ├── docs/                          # SE documentation suite (Exp 1 - 8 and IEEE paper analysis)
-│   ├── B124_B129_UMLRev_MiniProject_Report.docx  # Mini project report (submission deliverable)
-│   ├── B124_B129_SEProject.pdf    # Official project report
 │   ├── 01_project_overview.md
 │   ├── 02_base_paper_summary.md
 │   ├── 03_system_architecture_and_ai_pipeline.md
@@ -64,7 +62,6 @@ The `docs/` directory documents the project specifications and curriculum requir
 | **[docs/02_base_paper_summary.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/02_base_paper_summary.md)** | **Base Research Paper Analysis:** Breakdown of *UMLRev (IEEE Access 2026)*, covering FOSD principles, AspectJ tracing, component architecture, and the manual annotation gap. |
 | **[docs/03_system_architecture_and_ai_pipeline.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/03_system_architecture_and_ai_pipeline.md)** | **System Architecture and Analysis Pipeline:** Structural design of the four backend packages, AST symbol extraction, semantic clustering, and diagram strategies. |
 | **[docs/04_uml_and_dfd_models.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/04_uml_and_dfd_models.md)** | **Visual Models:** PlantUML and Mermaid specifications for Use Case, Activity, Class, Sequence, Collaboration, and Data Flow Diagrams. |
-| **[docs/B124_B129_UMLRev_MiniProject_Report.docx](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/B124_B129_UMLRev_MiniProject_Report.docx)** | **Mini Project Report (submission deliverable):** Introduction and authors, problem statement with objectives O1-O7 and scope, architecture and design diagrams, measured results with screenshots, conclusion and references. |
 | **[docs/05_se_lab_experiments_traceability.md](file:///c:/Users/Aditya%20Rane/OneDrive/Desktop/aditya/College%20MPSTME/sem5/SE/Project/UMLRev/docs/05_se_lab_experiments_traceability.md)** | **Lab Experiments and Traceability:** Traceability matrix linking User Stories, NFRs, Use Cases, Activities, Classes, Sequence Diagrams, and DFDs across Experiments 1 to 8. |
 
 ---

@@ -54,3 +54,12 @@ workspace_uploads/
 
 # graphify tooling output
 graphify-out/
+
+# Submission documents — kept locally, deliberately not published
+docs/Mini Project.docx
+docs/B124_B129_UMLRev_MiniProject_Report.docx
+docs/B124_B129_SEProject.pdf
+docs/submission_brief.md
+
+# Browser tooling output
+.playwright-mcp/
