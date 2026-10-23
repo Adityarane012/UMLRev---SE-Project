@@ -1,0 +1,78 @@
+flowchart TB
+  subgraph UI["① Presentation — React 19 + Vite"]
+    direction LR
+    APP["App.jsx<br/>coordinator + state"]
+    TABS["IngestTab · FeaturesTab · DiffTab<br/>DiagramExplorer · EvalTab"]
+    ACLI["services/api.js<br/>REST client"]
+    TABS --- APP --- ACLI
+  end
+
+  subgraph API["② API — FastAPI"]
+    REST["app.py — 16 REST endpoints<br/>validation · session persistence · static hosting"]
+  end
+
+  subgraph PIPE["③ pipeline — analysis stages"]
+    direction LR
+    GIT["GitService<br/>clone · log · diff"]
+    EXTR["SymbolExtractor<br/>AST · 8 languages"]
+    CLUS["ClusterEngine<br/>structural cohesion"]
+    LAB["FeatureLabeller"]
+    LLMC["LLMClient<br/>vendor gateway +<br/>heuristic fallback"]
+    DIFF["DiffAnalyzer<br/>commit impact"]
+    GIT --> EXTR --> CLUS --> LAB --> LLMC
+  end
+
+  REVIEW{{"④ Developer review<br/>approve · rename · rescope"}}
+
+  subgraph DIAG["⑤ diagram — Strategy pattern"]
+    direction LR
+    ENG["DiagramEngine"]
+    CLS["ClassDiagramStrategy"]
+    SEQ["SequenceDiagramStrategy"]
+    ENG -->|DiagramStrategy| CLS
+    ENG -->|DiagramStrategy| SEQ
+  end
+
+  subgraph EVAL["⑥ evaluation"]
+    direction LR
+    EVS["EvaluationService<br/>Precision · Recall · F1"]
+    GT["GroundTruth"]
+    EVS --- GT
+  end
+
+  OUT[/"PlantUML .puml · Mermaid .mmd<br/>Diagram-as-Code artefacts"/]
+
+  subgraph MODEL["model — domain core, shared by every stage"]
+    direction LR
+    PROJ["Project"]
+    CSYM["ClassSymbol<br/>FieldSymbol · MethodSymbol<br/>Relationship"]
+    FEAT["Feature + FeatureMembership"]
+    DGM["Diagram"]
+  end
+
+  GH[(GitHub repository)]
+  LLM[(LLM provider — optional)]
+
+  ACLI -->|HTTP| REST
+  REST --> GIT
+  GIT -.-> GH
+  LLMC -.-> LLM
+  LAB --> REVIEW
+  REVIEW --> ENG
+  DIFF -->|impacted classes| ENG
+  GIT --> DIFF
+  ENG --> OUT
+  ENG --> EVS
+
+  PIPE -.->|reads & writes| MODEL
+  DIAG -.-> MODEL
+  EVAL -.-> MODEL
+
+  classDef ext fill:#ede7f6,stroke:#7e57c2,color:#311b92
+  classDef art fill:#fff8e1,stroke:#ffa000,color:#e65100
+  classDef gate fill:#fce4ec,stroke:#d81b60,color:#880e4f
+  classDef dom fill:#f1f8e9,stroke:#689f38,color:#33691e
+  class GH,LLM ext
+  class OUT art
+  class REVIEW gate
+  class PROJ,CSYM,FEAT,DGM dom

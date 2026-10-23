@@ -51,3 +51,6 @@ desktop.ini
 
 # Application workspace uploads & transient files
 workspace_uploads/
+
+# graphify tooling output
+graphify-out/
