@@ -20,10 +20,11 @@ export default function EvalTab({ evalResults, groundTruth, onRunEvaluation, onG
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            Stage 5: Empirical Accuracy & Quality Benchmarks
+            Stage 5: Pipeline Regression Benchmark
           </h2>
           <p style={{ color: 'var(--text-muted)' }}>
-            Evaluates identified feature clusters against the ground truth documented in the IEEE paper.
+            Checks the discovered feature clusters against a known reference mapping, to confirm the
+            pipeline still reproduces a result it is expected to reproduce.
           </p>
         </div>
         <button
@@ -73,14 +74,45 @@ export default function EvalTab({ evalResults, groundTruth, onRunEvaluation, onG
         {/* Everything needed to read the three numbers above. */}
         <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
+          <div style={{ ...card, borderColor: '#b45309', background: 'rgba(120, 53, 15, 0.22)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#fcd34d' }}>
+              What this score does not show
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: '#fde68a', lineHeight: 1.65, marginTop: 0, marginBottom: '0.6rem' }}>
+              This is a regression check, not a measure of general accuracy. Read the number with three
+              things in mind:
+            </p>
+            <ul style={{ fontSize: '0.84rem', color: '#fde68a', lineHeight: 1.7, margin: 0, paddingLeft: '1.1rem' }}>
+              <li>
+                The reference project holds one feature and four tightly coupled classes, which leaves
+                almost no room for a false positive or a false negative. A perfect score here is close
+                to the expected outcome rather than a demanding result.
+              </li>
+              <li>
+                The feature labeller carries a keyword branch that returns the name
+                <em> Tell Story</em> for this project's vocabulary, so on this benchmark the name is
+                recalled rather than derived. The clustering is genuinely automatic; the label is not.
+              </li>
+              <li>
+                Matching a discovered feature name to a reference one is a lenient substring test, so
+                the score is driven far more by the class grouping than by the chosen name.
+              </li>
+            </ul>
+            <p style={{ fontSize: '0.84rem', color: '#fde68a', lineHeight: 1.65, marginBottom: 0, marginTop: '0.6rem' }}>
+              Treat a passing score as evidence that extraction and clustering still work end to end.
+              Establishing accuracy would need reference mappings for several projects with multiple
+              features each.
+            </p>
+          </div>
+
           <div style={card}>
             <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>
               What is being measured
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.65, margin: 0 }}>
               Stages 1–4 let the pipeline decide, without being told, which classes belong together as a
-              feature. Stage 5 checks that decision against a reference answer a human already wrote down.
-              The unit of comparison is a single <span style={term}>feature → class assignment</span>:
+              feature. Stage 5 compares that decision against a reference answer a human already wrote
+              down. The unit of comparison is a single <span style={term}>feature → class assignment</span>:
               claiming <em>Hero</em> belongs to <em>Tell Story</em> is one assignment, scored on its own.
               Every assignment the pipeline makes falls into exactly one of three buckets.
             </p>
@@ -124,8 +156,7 @@ export default function EvalTab({ evalResults, groundTruth, onRunEvaluation, onG
             </h3>
             <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.65, marginTop: 0, marginBottom: '0.75rem' }}>
               Taken from the IEEE Access paper, whose own UMLRev required an engineer to annotate these
-              features by hand. Reproducing this mapping automatically is the result the project claims,
-              so a score is only meaningful when the analysed repository is the one below.
+              features by hand. A score is only meaningful when the analysed repository is the one below.
             </p>
             {groundTruth && Object.entries(groundTruth).map(([featureName, classes]) => (
               <div key={featureName} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>

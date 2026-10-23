@@ -116,8 +116,10 @@ python -m unittest discover -s backend/tests -p "test_*.py"
 
 ## Verification and Quality Metrics
 
-### Accuracy on the IEEE Access "Tell Story" benchmark
+### Regression benchmark: IEEE Access "Tell Story" project
 The pipeline is given the source directory only, with no feature information of any kind.
+This is a **regression check that the pipeline still reproduces a known mapping end to end**,
+not a measurement of general accuracy - see the caveats below the table.
 
 | Measure | Result |
 |---|---|
@@ -130,8 +132,22 @@ The pipeline is given the source directory only, with no feature information of 
 | **Precision / Recall / F1** | **100.0% / 100.0% / 1.00** |
 
 Scoring operates on individual feature-to-class assignments, so a partially correct cluster is
-partially credited. F1 is the headline figure because precision and recall are each trivially
-gamed in isolation.
+partially credited. F1 is quoted rather than precision or recall alone because each of those is
+trivially gamed in isolation.
+
+**How much this result proves.** Not much on its own, and it should not be read as an accuracy
+figure:
+- The reference project has **one** feature and **four tightly coupled classes** (`Story` holds a
+  field of each of the other three), so there is almost no room for a false positive or a false
+  negative. A perfect score is close to the expected outcome.
+- `FeatureLabeller` falls back to `LLMClient._heuristic_fallback`, which contains a keyword branch
+  returning the name `"Tell Story"` for this project's vocabulary. On this benchmark the **feature
+  name is recalled, not derived** - the clustering is genuinely automatic, the label is not.
+- Matching a discovered feature name against a reference name is a lenient substring test, so the
+  score is driven far more by the class grouping than by the chosen name.
+
+Treat a pass as evidence that extraction and clustering still work end to end. Establishing
+accuracy would require reference mappings for several projects with multiple features each.
 
 ### Scale
 | Repository | Scale | Outcome |
